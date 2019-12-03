@@ -1,0 +1,25 @@
+{
+  "name": "house-orm",
+  "version": "0.1.0",
+  "description": "PHP ORM library",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "matskovich.taras<Мацькович Тарас>",
+      "email": "matskovich.taras@gmail.com"
+    }
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "5.4.6"
+  },
+  "require": {
+    "php": "^7.0",
+    "doctrine/annotations": "^1.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "houseorm\\": "src/orm"
+    }
+  }
+}

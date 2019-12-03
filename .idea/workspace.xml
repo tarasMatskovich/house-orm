@@ -1,7 +1,208 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="50e2abed-4df0-4588-9fa9-a5db6b3dba3c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/EntityManager.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/EntityManagerException.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/EntityManagerInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/GatewayInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilderInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/connection/ConnectionInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/DataTableGateway.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/QueryInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/delete/DeleteQuery.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/delete/DeleteQueryInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQuery.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQueryInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQuery.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQueryInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQuery.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQueryInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/mapper/DomainMapperInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/mapper/object/DomainObject.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/orm/mapper/object/DomainObjectInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/orm/gateway/builder/TestQueryBuilder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/house-orm.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/house-orm.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQueryInterface.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="168">
+              <caret line="41" column="20" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQueryInterface.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="435">
+              <caret line="37" selection-start-line="37" selection-end-line="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQuery.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-306">
+              <caret line="8" column="10" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="49" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQueryInterface.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="214">
+              <caret line="30" column="20" selection-start-line="30" selection-start-column="20" selection-end-line="30" selection-end-column="20" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQuery.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="197">
+              <caret line="43" column="5" selection-start-line="43" selection-start-column="5" selection-end-line="43" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilderInterface.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="425">
+              <caret line="30" column="20" selection-start-line="30" selection-start-column="20" selection-end-line="30" selection-end-column="20" />
+              <folding>
+                <element signature="e#133#198#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQuery.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="355">
+              <caret line="140" column="25" selection-start-line="140" selection-start-column="25" selection-end-line="140" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilder.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-41">
+              <caret line="25" column="7" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
+              <folding>
+                <element signature="e#134#190#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/orm/gateway/builder/TestQueryBuilder.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="350">
+              <caret line="39" column="26" lean-forward="true" selection-start-line="39" selection-start-column="26" selection-end-line="39" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
   <component name="Git.Settings">
     <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/composer.json" />
+        <option value="$PROJECT_DIR$/src/orm/mapper/DomainMapperInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/EntityManagerInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/EntityManagerException.php" />
+        <option value="$PROJECT_DIR$/src/orm/EntityManager.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/connection/ConnectionInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/mapper/object/DomainObjectInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/mapper/object/DomainObject.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/DataTableGateway.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/QueryInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQueryInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/delete/DeleteQueryInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/delete/DeleteQuery.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQueryInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQuery.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQueryInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQuery.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilderInterface.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilder.php" />
+        <option value="$PROJECT_DIR$/tests/orm/gateway/builder/TestQueryBuilder.php" />
+        <option value="$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQuery.php" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+      </list>
+    </option>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP 7.2-x64">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/phpunit-mock-objects" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-token-stream" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/type-resolver" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-docblock" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-common" />
+      <path value="$PROJECT_DIR$/vendor/phpspec/prophecy" />
+      <path value="$PROJECT_DIR$/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/instantiator" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/resource-operations" />
+      <path value="$PROJECT_DIR$/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/annotations" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/exporter" />
+    </include_path>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-8" />
@@ -9,10 +210,304 @@
     <option name="width" value="1400" />
     <option name="height" value="1000" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="house-orm" type="b2602c69:ProjectViewProjectNode" />
+              <item name="house-orm" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="reference.webide.settings.project.settings.php" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="PHPUnit.TestQueryBuilder.testSelectQuery">
+    <configuration name="TestQueryBuilder.testQueryBuilder" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="tests\orm\gateway\builder\TestQueryBuilder" file="$PROJECT_DIR$/tests/orm/gateway/builder/TestQueryBuilder.php" method="testQueryBuilder" scope="Method" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestQueryBuilder.testSelectQuery" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="tests\orm\gateway\builder\TestQueryBuilder" file="$PROJECT_DIR$/tests/orm/gateway/builder/TestQueryBuilder.php" method="testSelectQuery" scope="Method" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="PHPUnit.TestQueryBuilder.testSelectQuery" />
+        <item itemvalue="PHPUnit.TestQueryBuilder.testQueryBuilder" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="50e2abed-4df0-4588-9fa9-a5db6b3dba3c" name="Default Changelist" comment="" />
+      <created>1575294131668</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1575294131668</updated>
+      <workItem from="1575294132987" duration="9755000" />
+      <workItem from="1575362740276" duration="4652000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="TestQueryBuilder_testQueryBuilder - 2019.12.03 at 11h 24m 58s.xml">
+      <configuration name="TestQueryBuilder.testQueryBuilder" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 11h 40m 55s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 11h 42m 00s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 11h 43m 17s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 11h 44m 10s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 11h 44m 31s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 12h 01m 34s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 12h 04m 17s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 12h 05m 54s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+    <history-entry file="TestQueryBuilder_testSelectQuery - 2019.12.03 at 12h 06m 40s.xml">
+      <configuration name="TestQueryBuilder.testSelectQuery" configurationId="PHPUnitRunConfigurationType" />
+    </history-entry>
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="14407000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18017058" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49840087" visible="true" weight="0.32936078" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49946696" weight="0.3997833" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" order="8" />
+      <window_info anchor="bottom" id="Version Control" order="9" sideWeight="0.4989339" weight="0.32936078" />
+      <window_info anchor="bottom" id="Terminal" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50159913" side_tool="true" visible="true" weight="0.32936078" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/composer.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/EntityManager.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="15" column="20" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/mapper/DomainMapperInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="13" column="3" selection-start-line="13" selection-start-column="3" selection-end-line="13" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/EntityManagerException.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/EntityManagerInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="13" column="35" selection-start-line="13" selection-start-column="35" selection-end-line="13" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/connection/ConnectionInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="12" column="39" selection-start-line="12" selection-start-column="39" selection-end-line="12" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/mapper/object/DomainObjectInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/mapper/object/DomainObject.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="27" column="5" selection-start-line="27" selection-start-column="5" selection-end-line="27" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/DataTableGateway.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="29" column="7" selection-start-line="29" selection-start-column="7" selection-end-line="29" selection-end-column="7" />
+          <folding>
+            <element signature="e#136#188#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/GatewayInterface.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/QueryInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="17" column="7" selection-start-line="17" selection-start-column="7" selection-end-line="17" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/delete/DeleteQueryInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="23" column="22" lean-forward="true" selection-start-line="23" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/delete/DeleteQuery.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="248">
+          <caret line="20" column="18" selection-start-line="20" selection-start-column="18" selection-end-line="20" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQueryInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="37" selection-start-line="37" selection-end-line="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/insert/InsertQuery.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-306">
+          <caret line="8" column="10" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQueryInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="214">
+          <caret line="30" column="20" selection-start-line="30" selection-start-column="20" selection-end-line="30" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/update/UpdateQuery.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="43" column="5" selection-start-line="43" selection-start-column="5" selection-end-line="43" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilderInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="30" column="20" selection-start-line="30" selection-start-column="20" selection-end-line="30" selection-end-column="20" />
+          <folding>
+            <element signature="e#133#198#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/builder/QueryBuilder.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-41">
+          <caret line="25" column="7" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
+          <folding>
+            <element signature="e#134#190#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQueryInterface.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="41" column="20" selection-start-line="41" selection-start-column="20" selection-end-line="41" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/orm/gateway/datatable/query/select/SelectQuery.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="355">
+          <caret line="140" column="25" selection-start-line="140" selection-start-column="25" selection-end-line="140" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/orm/gateway/builder/TestQueryBuilder.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="350">
+          <caret line="39" column="26" lean-forward="true" selection-start-line="39" selection-start-column="26" selection-end-line="39" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
   </component>
 </project>
