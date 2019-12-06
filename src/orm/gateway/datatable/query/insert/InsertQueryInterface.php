@@ -19,6 +19,11 @@ interface InsertQueryInterface extends QueryInterface
 {
 
     /**
+     * @return InsertQueryInterface
+     */
+    public function insert();
+
+    /**
      * @param array $into
      * @return InsertQueryInterface
      */
@@ -29,11 +34,5 @@ interface InsertQueryInterface extends QueryInterface
      * @return InsertQueryInterface
      */
     public function fields(array $fields);
-
-    /**
-     * @param array $values
-     * @return InsertQueryInterface
-     */
-    public function values(array $values);
 
 }

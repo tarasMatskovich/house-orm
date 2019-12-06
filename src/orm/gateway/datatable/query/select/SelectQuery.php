@@ -8,6 +8,12 @@
 
 namespace houseorm\gateway\datatable\query\select;
 
+use houseorm\gateway\datatable\query\traits\CriteriaQueryTrait;
+use houseorm\gateway\datatable\query\traits\FromQueryTrait;
+use houseorm\gateway\datatable\query\traits\LimitQueryTrait;
+use houseorm\gateway\datatable\query\traits\OffsetQueryTrait;
+use houseorm\gateway\datatable\query\traits\OrderQueryTrait;
+
 /**
  * Class SelectQuery
  * @package houseorm\gateway\datatable\query\select
@@ -15,44 +21,12 @@ namespace houseorm\gateway\datatable\query\select;
 class SelectQuery implements SelectQueryInterface
 {
 
+    use FromQueryTrait, CriteriaQueryTrait, OrderQueryTrait, LimitQueryTrait, OffsetQueryTrait;
+
     /**
      * @var array
      */
     private $select;
-
-    /**
-     * @var array
-     */
-    private $from;
-
-    /**
-     * @var array
-     */
-    private $criteria;
-
-    /**
-     * @var array
-     */
-    private $order;
-
-    /**
-     * @var int
-     */
-    private $limit;
-
-    /**
-     * @var int
-     */
-    private $offset;
-
-    /**
-     * SelectQuery constructor.
-     */
-    public function __construct()
-    {
-
-    }
-
 
     /**
      * @return string
@@ -65,7 +39,10 @@ class SelectQuery implements SelectQueryInterface
         $order = $this->getOrder();
         $limit = $this->getLimit();
         $offset = $this->getOffset();
-        $statement = "SELECT {$select} FROM {$from} WHERE {$criteria} ";
+        $statement = "SELECT {$select} FROM {$from} ";
+        if ($criteria) {
+            $statement .= "WHERE {$criteria} ";
+        }
         if ($order) {
             $statement .= "ORDER BY {$order} ";
         }
@@ -85,87 +62,6 @@ class SelectQuery implements SelectQueryInterface
     {
         $fields = $this->select;
         return (!$fields || empty($fields)) ? '*' : implode(',', $fields);
-    }
-
-    /**
-     * @return string
-     */
-    private function getFrom()
-    {
-        $from = $this->from;
-        return (!$from) ? '' : $from[0] ?? '';
-    }
-
-    /**
-     * @return string
-     */
-    private function getCriteria()
-    {
-        $criteria = $this->criteria;
-        $criteriaStatement = '';
-        foreach ($criteria as $key => $value) {
-            $operator = '=';
-            $field = $key;
-            $val = $value;
-            if (\is_array($value)) {
-                $operator = $value[1] ?? '=';
-                $field = $value[0] ?? '';
-                $val = $value[2] ?? '';
-            }
-            if ('' === $criteriaStatement) {
-                $criteriaStatement = "{$field} {$operator} {$val} ";
-            } else {
-                $criteriaStatement .= "AND {$field} {$operator} {$val} ";
-            }
-        }
-        return substr($criteriaStatement, 0, -1);
-    }
-
-    /**
-     * @return string
-     */
-    private function getOrder()
-    {
-        $order = $this->order;
-        if (null === $order || empty($order)) {
-            return null;
-        }
-        foreach ($order as $by => $type) {
-            $innerType = null;
-            $sortBy = null;
-            switch ($type) {
-                case 'DESC':
-                    $innerType = 'DESC';
-                    $sortBy = $by;
-                    break;
-                case 'ASC':
-                    $innerType = 'ASC';
-                    $sortBy = $by;
-                    break;
-                default:
-                    $innerType = 'ASC';
-                    $sortBy = $by;
-                    break;
-            }
-            $orderStatement = "{$sortBy} {$innerType}";
-            return $orderStatement;
-        }
-    }
-
-    /**
-     * @return string
-     */
-    private function getLimit()
-    {
-        return (string)$this->limit;
-    }
-
-    /**
-     * @return string
-     */
-    private function getOffset()
-    {
-        return (string)$this->offset;
     }
 
     /**

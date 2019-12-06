@@ -26,9 +26,13 @@ class InsertQuery implements InsertQueryInterface
     private $fields;
 
     /**
-     * @var array
+     * @return InsertQueryInterface
      */
-    private $values;
+    public function insert()
+    {
+        $query = clone $this;
+        return $query;
+    }
 
     /**
      * @param array $into
@@ -53,21 +57,50 @@ class InsertQuery implements InsertQueryInterface
     }
 
     /**
-     * @param array $values
-     * @return InsertQueryInterface
+     * @return string
      */
-    public function values(array $values)
+    private function getInto()
     {
-        $this->values = $values;
-        $query = clone $this;
-        return $query;
+        return $this->into[0] ?? '';
     }
+
+    /**
+     * @return string
+     */
+    private function getFields()
+    {
+        $fields = $this->fields;
+        $fieldsStatement = '';
+        foreach ($fields as $field => $value) {
+            $fieldsStatement .= $field . ',';
+        }
+        $fieldsStatement = $fieldsStatement !== '' ? substr($fieldsStatement, 0, -1) : '';
+        return $fieldsStatement;
+    }
+
+    /**
+     * @return string
+     */
+    private function getValues()
+    {
+        $values = $this->fields;
+        $valuesStatement = '';
+        foreach ($values as $field => $value) {
+            $valuesStatement .= $value . ',';
+        }
+        $valuesStatement = $valuesStatement !== '' ? substr($valuesStatement, 0, -1) : '';
+        return $valuesStatement;
+    }
+
 
     /**
      * @return string
      */
     public function getStatement()
     {
-        return '';
+        $into = $this->getInto();
+        $fields = $this->getFields();
+        $values = $this->getValues();
+        return "INSERT INTO {$into} ({$fields}) VALUES ({$values})";
     }
 }

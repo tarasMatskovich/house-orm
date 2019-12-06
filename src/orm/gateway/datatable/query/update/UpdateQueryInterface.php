@@ -31,6 +31,12 @@ interface UpdateQueryInterface extends QueryInterface
     public function set(array $set);
 
     /**
+     * @param array $criteria
+     * @return UpdateQueryInterface
+     */
+    public function where(array $criteria);
+
+    /**
      * @param $limit
      * @return UpdateQueryInterface
      */

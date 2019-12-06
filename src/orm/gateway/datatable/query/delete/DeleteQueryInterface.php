@@ -18,6 +18,11 @@ interface DeleteQueryInterface extends QueryInterface
 {
 
     /**
+     * @return DeleteQueryInterface
+     */
+    public function delete();
+
+    /**
      * @param array $from
      * @return DeleteQueryInterface
      */
@@ -28,5 +33,23 @@ interface DeleteQueryInterface extends QueryInterface
      * @return DeleteQueryInterface
      */
     public function where(array $criteria);
+
+    /**
+     * @param array $order
+     * @return DeleteQueryInterface
+     */
+    public function order(array $order);
+
+    /**
+     * @param $limit
+     * @return DeleteQueryInterface
+     */
+    public function limit($limit);
+
+    /**
+     * @param $offset
+     * @return DeleteQueryInterface
+     */
+    public function offset($offset);
 
 }

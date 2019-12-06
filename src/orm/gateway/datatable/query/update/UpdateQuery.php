@@ -8,12 +8,18 @@
 
 namespace houseorm\gateway\datatable\query\update;
 
+use houseorm\gateway\datatable\query\traits\CriteriaQueryTrait;
+use houseorm\gateway\datatable\query\traits\LimitQueryTrait;
+use houseorm\gateway\datatable\query\traits\OffsetQueryTrait;
+
 /**
  * Class UpdateQuery
  * @package houseorm\gateway\datatable\query\update
  */
 class UpdateQuery implements UpdateQueryInterface
 {
+
+    use CriteriaQueryTrait, LimitQueryTrait, OffsetQueryTrait;
 
     /**
      * @var array
@@ -26,21 +32,52 @@ class UpdateQuery implements UpdateQueryInterface
     private $set;
 
     /**
-     * @var int
+     * @return string
      */
-    private $limit;
+    private function getUpdate()
+    {
+        $updateFields = '';
+        $update = $this->update;
+        foreach ($update as $field) {
+            $updateFields .= $field . ',';
+        }
+        return ($updateFields !== '') ? substr($updateFields, 0, -1) : '';
+    }
 
     /**
-     * @var int
+     * @return string
      */
-    private $offset;
+    private function getSet()
+    {
+        $setFields = '';
+        $set = $this->set;
+        foreach ($set as $field => $value) {
+            $setFields .= "{$field}={$value},";
+        }
+        return ($setFields !== '') ? substr($setFields, 0, -1) : '';
+    }
 
     /**
      * @return string
      */
     public function getStatement()
     {
-        return '';
+        $update = $this->getUpdate();
+        $set = $this->getSet();
+        $criteria = $this->getCriteria();
+        $limit = $this->getLimit();
+        $offset = $this->getOffset();
+        $updateStatement = "UPDATE {$update} SET {$set}";
+        if ($criteria) {
+            $updateStatement .= " WHERE {$criteria}";
+        }
+        if ($limit) {
+            $updateStatement .= " LIMIT {$limit}";
+        }
+        if ($offset) {
+            $updateStatement .= " OFFSET {$offset}";
+        }
+        return $updateStatement;
     }
 
     /**
@@ -61,6 +98,17 @@ class UpdateQuery implements UpdateQueryInterface
     public function set(array $set)
     {
         $this->set = $set;
+        $query = clone $this;
+        return $query;
+    }
+
+    /**
+     * @param array $criteria
+     * @return UpdateQueryInterface
+     */
+    public function where(array $criteria)
+    {
+        $this->criteria = $criteria;
         $query = clone $this;
         return $query;
     }
