@@ -45,4 +45,29 @@ trait CriteriaQueryTrait
         return substr($criteriaStatement, 0, -1);
     }
 
+    /**
+     * @return string
+     */
+    protected function getPreparedCriteria()
+    {
+        $criteria = $this->criteria;
+        $criteriaStatement = '';
+        foreach ($criteria as $key => $value) {
+            $operator = '=';
+            $field = $key;
+            $val = ':' . $field;
+            if (\is_array($value)) {
+                $operator = $value[1] ?? '=';
+                $field = $value[0] ?? '';
+                $val = ':' . $field;
+            }
+            if ('' === $criteriaStatement) {
+                $criteriaStatement = "{$field} {$operator} {$val} ";
+            } else {
+                $criteriaStatement .= "AND {$field} {$operator} {$val} ";
+            }
+        }
+        return substr($criteriaStatement, 0, -1);
+    }
+
 }

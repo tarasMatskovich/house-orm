@@ -20,4 +20,9 @@ interface QueryInterface
      */
     public function getStatement();
 
+    /**
+     * @return string
+     */
+    public function getPreparedStatement();
+
 }

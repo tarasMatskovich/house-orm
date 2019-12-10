@@ -8,6 +8,7 @@
 
 namespace houseorm\gateway\datatable\query\update;
 
+use houseorm\gateway\datatable\query\traits\BindingsEnum;
 use houseorm\gateway\datatable\query\traits\CriteriaQueryTrait;
 use houseorm\gateway\datatable\query\traits\LimitQueryTrait;
 use houseorm\gateway\datatable\query\traits\OffsetQueryTrait;
@@ -60,6 +61,20 @@ class UpdateQuery implements UpdateQueryInterface
     /**
      * @return string
      */
+    private function getPreparedSet()
+    {
+        $setFields = '';
+        $set = $this->set;
+        $criteriaBinding = BindingsEnum::CRITERIA_BINDING;
+        foreach ($set as $field => $value) {
+            $setFields .= "{$field}={$criteriaBinding}{$field},";
+        }
+        return ($setFields !== '') ? substr($setFields, 0, -1) : '';
+    }
+
+    /**
+     * @return string
+     */
     public function getStatement()
     {
         $update = $this->getUpdate();
@@ -67,6 +82,26 @@ class UpdateQuery implements UpdateQueryInterface
         $criteria = $this->getCriteria();
         $limit = $this->getLimit();
         $offset = $this->getOffset();
+        $updateStatement = "UPDATE {$update} SET {$set}";
+        if ($criteria) {
+            $updateStatement .= " WHERE {$criteria}";
+        }
+        if ($limit) {
+            $updateStatement .= " LIMIT {$limit}";
+        }
+        if ($offset) {
+            $updateStatement .= " OFFSET {$offset}";
+        }
+        return $updateStatement;
+    }
+
+    public function getPreparedStatement()
+    {
+        $update = $this->getUpdate();
+        $set = $this->getPreparedSet();
+        $criteria = $this->getPreparedCriteria();
+        $limit = $this->getPreparedLimit();
+        $offset = $this->getPreparedOffset();
         $updateStatement = "UPDATE {$update} SET {$set}";
         if ($criteria) {
             $updateStatement .= " WHERE {$criteria}";

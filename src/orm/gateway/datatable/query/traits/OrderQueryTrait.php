@@ -20,7 +20,8 @@ trait OrderQueryTrait
     protected $order;
 
     /**
-     * @return string
+     * @return string|null
+     * TODO add multiple order
      */
     protected function getOrder()
     {
@@ -34,17 +35,44 @@ trait OrderQueryTrait
             switch ($type) {
                 case 'DESC':
                     $innerType = 'DESC';
-                    $sortBy = $by;
                     break;
                 case 'ASC':
                     $innerType = 'ASC';
-                    $sortBy = $by;
                     break;
                 default:
                     $innerType = 'ASC';
-                    $sortBy = $by;
                     break;
             }
+            $sortBy = $by;
+            $orderStatement = "{$sortBy} {$innerType}";
+            return $orderStatement;
+        }
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getPreparedOrder()
+    {
+        $order = $this->order;
+        if (null === $order || empty($order)) {
+            return null;
+        }
+        foreach ($order as $by => $type) {
+            $innerType = null;
+            $sortBy = null;
+            switch ($type) {
+                case 'DESC':
+                    $innerType = 'DESC';
+                    break;
+                case 'ASC':
+                    $innerType = 'ASC';
+                    break;
+                default:
+                    $innerType = 'ASC';
+                    break;
+            }
+            $sortBy = BindingsEnum::ORDER_BINDING;
             $orderStatement = "{$sortBy} {$innerType}";
             return $orderStatement;
         }

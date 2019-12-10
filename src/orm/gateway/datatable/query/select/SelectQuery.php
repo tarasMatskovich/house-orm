@@ -58,6 +58,33 @@ class SelectQuery implements SelectQueryInterface
     /**
      * @return string
      */
+    public function getPreparedStatement()
+    {
+        $select = $this->getSelectFields();
+        $from = $this->getFrom();
+        $criteria = $this->getPreparedCriteria();
+        $order = $this->getPreparedOrder();
+        $limit = $this->getPreparedLimit();
+        $offset = $this->getPreparedOffset();
+        $statement = "SELECT {$select} FROM {$from} ";
+        if ($criteria) {
+            $statement .= "WHERE {$criteria} ";
+        }
+        if ($order) {
+            $statement .= "ORDER BY {$order} ";
+        }
+        if ($limit) {
+            $statement .= "LIMIT {$limit} ";
+        }
+        if ($offset) {
+            $statement .= "OFFSET {$offset}";
+        }
+        return $statement;
+    }
+
+    /**
+     * @return string
+     */
     private function getSelectFields()
     {
         $fields = $this->select;

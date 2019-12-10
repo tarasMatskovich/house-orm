@@ -28,4 +28,12 @@ trait LimitQueryTrait
         return (string)$this->limit;
     }
 
+    /**
+     * @return string|null
+     */
+    protected function getPreparedLimit()
+    {
+        return ($this->limit) ? BindingsEnum::LIMIT_BINDING : null;
+    }
+
 }

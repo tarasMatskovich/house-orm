@@ -28,4 +28,12 @@ trait OffsetQueryTrait
         return (string)$this->offset;
     }
 
+    /**
+     * @return string|null
+     */
+    protected function getPreparedOffset()
+    {
+        return ($this->offset) ? BindingsEnum::OFFSET_BINDING : null;
+    }
+
 }

@@ -8,6 +8,8 @@
 
 namespace houseorm\gateway\datatable\query\insert;
 
+use houseorm\gateway\datatable\query\traits\BindingsEnum;
+
 /**
  * Class InsertQuery
  * @package houseorm\gateway\datatable\query\insert
@@ -92,6 +94,20 @@ class InsertQuery implements InsertQueryInterface
         return $valuesStatement;
     }
 
+    /**
+     * @return string
+     */
+    private function getPreparedValues()
+    {
+        $values = $this->fields;
+        $valuesStatement = '';
+        foreach ($values as $field => $value) {
+            $valuesStatement .= BindingsEnum::CRITERIA_BINDING . $field . ',';
+        }
+        $valuesStatement = $valuesStatement !== '' ? substr($valuesStatement, 0, -1) : '';
+        return $valuesStatement;
+    }
+
 
     /**
      * @return string
@@ -101,6 +117,17 @@ class InsertQuery implements InsertQueryInterface
         $into = $this->getInto();
         $fields = $this->getFields();
         $values = $this->getValues();
+        return "INSERT INTO {$into} ({$fields}) VALUES ({$values})";
+    }
+
+    /**
+     * @return string
+     */
+    public function getPreparedStatement()
+    {
+        $into = $this->getInto();
+        $fields = $this->getFields();
+        $values = $this->getPreparedValues();
         return "INSERT INTO {$into} ({$fields}) VALUES ({$values})";
     }
 }

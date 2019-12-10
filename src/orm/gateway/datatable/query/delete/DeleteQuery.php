@@ -109,4 +109,27 @@ class DeleteQuery implements DeleteQueryInterface
         }
         return $statement;
     }
+
+    /**
+     * @return string
+     */
+    public function getPreparedStatement()
+    {
+        $from = $this->getFrom();
+        $criteria = $this->getPreparedCriteria();
+        $order = $this->getPreparedOrder();
+        $limit = $this->getPreparedLimit();
+        $offset = $this->getPreparedOffset();
+        $statement = "DELETE FROM {$from} WHERE {$criteria} ";
+        if ($order) {
+            $statement .= "ORDER BY {$order} ";
+        }
+        if ($limit) {
+            $statement .= "LIMIT {$limit} ";
+        }
+        if ($offset) {
+            $statement .= "OFFSET {$offset}";
+        }
+        return $statement;
+    }
 }
