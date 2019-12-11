@@ -8,6 +8,7 @@
 
 namespace houseorm\gateway\datatable\query\delete;
 
+
 use houseorm\gateway\datatable\query\QueryInterface;
 
 /**

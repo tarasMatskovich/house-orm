@@ -21,7 +21,8 @@
   },
   "autoload": {
     "psr-4": {
-      "houseorm\\": "src/orm"
+      "houseorm\\": "src/orm",
+      "tests\\": "tests/"
     }
   }
 }

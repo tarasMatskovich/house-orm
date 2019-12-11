@@ -8,6 +8,8 @@
 
 namespace houseorm\mapper;
 
+use houseorm\mapper\object\DomainObjectInterface;
+
 /**
  * Class DomainMapperInterface
  * @package houseorm\mapper
@@ -15,6 +17,22 @@ namespace houseorm\mapper;
 interface DomainMapperInterface
 {
 
+    /**
+     * @param $id
+     * @return DomainObjectInterface
+     */
+    public function find($id);
 
+    /**
+     * @param array $criteria
+     * @return DomainObjectInterface[]
+     */
+    public function findBy($criteria);
+
+    /**
+     * @param array $criteria
+     * @return DomainObjectInterface
+     */
+    public function findOneBy($criteria);
 
 }

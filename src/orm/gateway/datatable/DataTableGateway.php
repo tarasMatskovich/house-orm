@@ -10,6 +10,7 @@ namespace houseorm\gateway\datatable;
 
 
 use houseorm\gateway\connection\ConnectionInterface;
+use houseorm\gateway\datatable\query\QueryInterface;
 use houseorm\gateway\GatewayInterface;
 
 /**
@@ -33,4 +34,12 @@ class DataTableGateway implements GatewayInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @param QueryInterface $query
+     * @return array
+     */
+    public function execute(QueryInterface $query)
+    {
+        return $this->connection->execute($query);
+    }
 }

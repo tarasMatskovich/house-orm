@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: t.matskovich
- * Date: 02.12.2019
- * Time: 16:11
+ * Date: 11.12.2019
+ * Time: 12:09
  */
 
 namespace houseorm\gateway\connection;
@@ -11,16 +11,18 @@ namespace houseorm\gateway\connection;
 use houseorm\gateway\datatable\query\QueryInterface;
 
 /**
- * Interface ConnectionInterface
+ * Class InMemoryConnection
  * @package houseorm\gateway\connection
  */
-interface ConnectionInterface
+class InMemoryConnection implements ConnectionInterface
 {
 
     /**
      * @param QueryInterface $query
      * @return array
      */
-    public function execute(QueryInterface $query);
-
+    public function execute(QueryInterface $query)
+    {
+        return [];
+    }
 }

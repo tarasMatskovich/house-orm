@@ -8,8 +8,19 @@
 
 namespace houseorm\gateway;
 
+use houseorm\gateway\datatable\query\QueryInterface;
 
+/**
+ * Interface GatewayInterface
+ * @package houseorm\gateway
+ */
 interface GatewayInterface
 {
+
+    /**
+     * @param QueryInterface $query
+     * @return array
+     */
+    public function execute(QueryInterface $query);
 
 }

@@ -10,7 +10,7 @@ namespace houseorm\gateway\datatable\query;
 
 /**
  * Interface QueryInterface
- * @package houseorm\gateway\datatable\query
+ * @package houseorm\gateway
  */
 interface QueryInterface
 {
