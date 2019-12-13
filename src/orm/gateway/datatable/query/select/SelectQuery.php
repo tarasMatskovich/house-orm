@@ -156,4 +156,17 @@ class SelectQuery implements SelectQueryInterface
         $query = clone $this;
         return $query;
     }
+
+    public function getFromPart()
+    {
+        return $this->from;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWherePart()
+    {
+        return $this->criteria;
+    }
 }

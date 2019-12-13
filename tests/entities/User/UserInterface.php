@@ -25,4 +25,10 @@ interface UserInterface
      */
     public function getName();
 
+    /**
+     * @param $name
+     * @return void
+     */
+    public function setName($name);
+
 }

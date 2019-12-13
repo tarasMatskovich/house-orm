@@ -56,4 +56,12 @@ class User implements UserInterface
     {
         return $this->name;
     }
+
+    /**
+     * @param $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
 }

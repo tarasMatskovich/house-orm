@@ -8,7 +8,7 @@
 
 namespace houseorm\gateway\connection;
 
-use houseorm\gateway\datatable\query\QueryInterface;
+use houseorm\gateway\datatable\request\QueryRequestInterface;
 
 /**
  * Class PdoConnection
@@ -18,10 +18,10 @@ class PdoConnection implements ConnectionInterface
 {
 
     /**
-     * @param QueryInterface $query
+     * @param QueryRequestInterface $queryRequest
      * @return array
      */
-    public function execute(QueryInterface $query)
+    public function execute(QueryRequestInterface $queryRequest)
     {
         // EXECUTE SQL QUERY
         $res = [
@@ -29,5 +29,13 @@ class PdoConnection implements ConnectionInterface
             'name' => 'Тарас'
         ];
         return $res;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getLastInsertId()
+    {
+        // TODO: Implement getLastInsertId() method.
     }
 }

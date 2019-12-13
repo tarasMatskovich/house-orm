@@ -8,7 +8,7 @@
 
 namespace houseorm\gateway\connection;
 
-use houseorm\gateway\datatable\query\QueryInterface;
+use houseorm\gateway\datatable\request\QueryRequestInterface;
 
 /**
  * Interface ConnectionInterface
@@ -18,9 +18,14 @@ interface ConnectionInterface
 {
 
     /**
-     * @param QueryInterface $query
+     * @param QueryRequestInterface $queryRequest
      * @return array
      */
-    public function execute(QueryInterface $query);
+    public function execute(QueryRequestInterface $queryRequest);
+
+    /**
+     * @return int|null
+     */
+    public function getLastInsertId();
 
 }

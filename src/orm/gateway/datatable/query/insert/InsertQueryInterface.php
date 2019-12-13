@@ -35,4 +35,14 @@ interface InsertQueryInterface extends QueryInterface
      */
     public function fields(array $fields);
 
+    /**
+     * @return array
+     */
+    public function getIntoPart();
+
+    /**
+     * @return array
+     */
+    public function getFieldsPart();
+
 }

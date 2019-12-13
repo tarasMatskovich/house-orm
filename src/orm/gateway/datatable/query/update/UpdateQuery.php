@@ -169,4 +169,28 @@ class UpdateQuery implements UpdateQueryInterface
         $query = clone $this;
         return $query;
     }
+
+    /**
+     * @return array
+     */
+    public function getUpdatePart()
+    {
+       return $this->update;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSetPart()
+    {
+        return $this->set;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWherePart()
+    {
+        return $this->criteria;
+    }
 }

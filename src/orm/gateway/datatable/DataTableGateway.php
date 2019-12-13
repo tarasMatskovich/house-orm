@@ -10,7 +10,7 @@ namespace houseorm\gateway\datatable;
 
 
 use houseorm\gateway\connection\ConnectionInterface;
-use houseorm\gateway\datatable\query\QueryInterface;
+use houseorm\gateway\datatable\request\QueryRequestInterface;
 use houseorm\gateway\GatewayInterface;
 
 /**
@@ -35,11 +35,19 @@ class DataTableGateway implements GatewayInterface
     }
 
     /**
-     * @param QueryInterface $query
+     * @param QueryRequestInterface $queryRequest
      * @return array
      */
-    public function execute(QueryInterface $query)
+    public function execute(QueryRequestInterface $queryRequest)
     {
-        return $this->connection->execute($query);
+        return $this->connection->execute($queryRequest);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getLastInsertId()
+    {
+        return $this->connection->getLastInsertId();
     }
 }

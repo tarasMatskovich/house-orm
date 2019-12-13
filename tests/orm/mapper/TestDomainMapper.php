@@ -8,8 +8,11 @@
 
 namespace tests\orm\mapper;
 
+use houseorm\gateway\connection\InMemoryConnection;
+use houseorm\gateway\datatable\DataTableGateway;
 use tests\entities\User\User;
 use tests\repositories\UserRepository\UserRepository;
+use tests\repositories\UserRepository\UserRepositoryInterface;
 
 /**
  * Class TestDomainMapper
@@ -20,10 +23,22 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
 
     public function testUserRepository()
     {
+        /**
+         * @var $userRepository UserRepositoryInterface
+         */
         $userRepository = new UserRepository(
-            User::class
+            User::class,
+            new DataTableGateway(new InMemoryConnection())
         );
-        $res = $userRepository->find(10);
+        $user = new User('Тарас');
+        $userRepository->save($user);
+        $newUser = $userRepository->find($user->getId());
+        $user->setName('A');
+        $newUser->setName('B');
+        $userRepository->save($newUser);
+        $newUserAfterUpdate = $userRepository->find($newUser->getId());
+        $userRepository->delete($newUserAfterUpdate);
+        $newUserAfterDelete = $userRepository->find($newUserAfterUpdate->getId());
     }
 
 }

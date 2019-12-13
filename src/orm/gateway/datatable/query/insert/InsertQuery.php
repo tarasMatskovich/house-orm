@@ -130,4 +130,20 @@ class InsertQuery implements InsertQueryInterface
         $values = $this->getPreparedValues();
         return "INSERT INTO {$into} ({$fields}) VALUES ({$values})";
     }
+
+    /**
+     * @return array
+     */
+    public function getIntoPart()
+    {
+        return $this->into;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFieldsPart()
+    {
+        return $this->fields;
+    }
 }

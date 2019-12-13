@@ -53,4 +53,14 @@ interface DeleteQueryInterface extends QueryInterface
      */
     public function offset($offset);
 
+    /**
+     * @return array
+     */
+    public function getFromPart();
+
+    /**
+     * @return array
+     */
+    public function getWherePart();
+
 }

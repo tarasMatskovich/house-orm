@@ -16,6 +16,7 @@ use houseorm\gateway\builder\QueryBuilder;
 use houseorm\gateway\builder\QueryBuilderInterface;
 use houseorm\gateway\connection\PdoConnection;
 use houseorm\gateway\datatable\DataTableGateway;
+use houseorm\gateway\datatable\request\QueryRequest;
 use houseorm\gateway\GatewayInterface;
 use houseorm\mapper\annotations\Field;
 use houseorm\mapper\annotations\Gateway;
@@ -85,6 +86,7 @@ class DomainMapper implements DomainMapperInterface
         $this->primaryKey = $primaryKey;
         $this->mapping = $this->getMapping();
         $this->builder = $this->getBuilder();
+        $this->setTarget();
     }
 
     /**
@@ -96,16 +98,40 @@ class DomainMapper implements DomainMapperInterface
     }
 
     /**
+     * @throws DomainMapperException
+     */
+    public function setTarget()
+    {
+        try {
+            $gatewayParts = $this->getGatewayParts();
+        } catch (\ReflectionException $e) {
+            throw new DomainMapperException($this->entity);
+        }
+        $target = $gatewayParts[1] ?? null;
+        $this->target = $target;
+    }
+
+    /**
+     * @return array
+     * @throws \ReflectionException
+     */
+    private function getGatewayParts()
+    {
+        $reflectionClass = new \ReflectionClass($this->entity);
+        $gatewayAnnotation = $this->reader->getClassAnnotation($reflectionClass, Gateway::class);
+        $gatewayType = $gatewayAnnotation->type;
+        $gatewayParts = explode('.', $gatewayType);
+        return $gatewayParts;
+    }
+
+    /**
      * @return GatewayInterface
      * @throws DomainMapperException
      */
     private function getGateway()
     {
         try {
-            $reflectionClass = new \ReflectionClass($this->entity);
-            $gatewayAnnotation = $this->reader->getClassAnnotation($reflectionClass, Gateway::class);
-            $gatewayType = $gatewayAnnotation->type;
-            $gatewayParts = explode('.', $gatewayType);
+            $gatewayParts = $this->getGatewayParts();
             if (!$gatewayParts && count($gatewayParts) !== 2) {
                 throw new DomainMapperException($this->entity);
             }
@@ -119,8 +145,6 @@ class DomainMapper implements DomainMapperInterface
                     $gatewayObj = new DataTableGateway(new PdoConnection());
                     break;
             }
-            $target = $gatewayParts[1] ?? null;
-            $this->target = $target;
             return $gatewayObj;
         } catch (\ReflectionException $e) {
             throw new DomainMapperException($this->entity);
@@ -189,8 +213,30 @@ class DomainMapper implements DomainMapperInterface
     }
 
     /**
+     * @param $entity
+     * @return array
+     * @throws \ReflectionException
+     */
+    private function reverseMap($entity)
+    {
+        $fields = [];
+        $entityReflectionClass = new \ReflectionClass($entity);
+        $privateProperties = $entityReflectionClass->getProperties(\ReflectionProperty::IS_PRIVATE);
+        foreach ($privateProperties as $privateProperty) {
+            $name = $privateProperty->getName();
+            $privateProperty->setAccessible(true);
+            $value = $privateProperty->getValue($entity);
+            $privateProperty->setAccessible(false);
+            if (isset($this->mapping[$name])) {
+                $fields[$this->mapping[$name]] = $value;
+            }
+        }
+        return $fields;
+    }
+
+    /**
      * @param $id
-     * @return DomainObjectInterface
+     * @return DomainObjectInterface|null
      */
     public function find($id)
     {
@@ -200,8 +246,25 @@ class DomainMapper implements DomainMapperInterface
         $query->from([$this->target]);
         $query->where([$pk => $id]);
         $query->limit(1);
-        $result = $this->gateway->execute($query);
-        return $this->doMap($result);
+        $queryRequest = new QueryRequest($query, $pk);
+        $result = $this->gateway->execute($queryRequest);
+        if (isset($result['result'])) {
+            try {
+                return $this->doMap($this->fetchOne($result['result']));
+            } catch (DomainMapperException $e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param array $result
+     * @return array
+     */
+    private function fetchOne(array $result)
+    {
+        return $result[0] ?? [];
     }
 
     /**
@@ -220,5 +283,119 @@ class DomainMapper implements DomainMapperInterface
     public function findOneBy($criteria)
     {
         // TODO: Implement findOneBy() method.
+    }
+
+    /**
+     * @param $entity
+     * @return void
+     */
+    public function save(&$entity)
+    {
+        try {
+            $fields = $this->reverseMap($entity);
+        } catch (\ReflectionException $e) {
+            return;
+        }
+        $lastInsertId = null;
+        try {
+            if ($this->isEntityExists($entity)) {
+                $lastInsertId = $this->doUpdate($fields);
+            } else {
+                $lastInsertId = $this->doSave($fields);
+            }
+        } catch (\ReflectionException $e) {
+            return;
+        }
+        if ($lastInsertId) {
+            $refreshedEntity = $this->find($lastInsertId);
+            $entity = $refreshedEntity;
+        }
+    }
+
+    /**
+     * @param array $attributes
+     * @return int|null
+     */
+    private function doSave(array $attributes)
+    {
+        $query = $this->builder->getInsertQuery();
+        $query->into([$this->target]);
+        $query->fields($attributes);
+        $queryRequest = new QueryRequest($query, $this->primaryKey);
+        $this->gateway->execute($queryRequest);
+        return $this->gateway->getLastInsertId();
+    }
+
+    /**
+     * @param array $attributes
+     * @return int|null
+     */
+    private function doUpdate(array $attributes)
+    {
+        $query = $this->builder->getUpdateQuery();
+        $query->update([$this->target]);
+        $query->set($attributes);
+        $pk = $this->retrieveMappedPrimaryKeyFromAttributes($attributes);
+        if ($pk) {
+            $query->where([
+                $this->primaryKey => $pk
+            ]);
+            $this->gateway->execute(new QueryRequest($query, $this->primaryKey));
+            return $pk;
+        }
+        return null;
+    }
+
+    /**
+     * @param array $attributes
+     * @return int|null
+     */
+    private function retrieveMappedPrimaryKeyFromAttributes(array $attributes)
+    {
+        if (array_key_exists($this->primaryKey, $attributes)) {
+            return $attributes[$this->primaryKey];
+        }
+        return null;
+    }
+
+    /**
+     * @param $entity
+     * @return bool
+     * @throws \ReflectionException
+     */
+    private function isEntityExists($entity)
+    {
+        $entityReflectionClass = new \ReflectionClass($entity);
+        $privateProperties = $entityReflectionClass->getProperties(\ReflectionProperty::IS_PRIVATE);
+        foreach ($privateProperties as $property) {
+            $field = $property->getName();
+            if ((string)$field === (string)$this->primaryKey) {
+                $property->setAccessible(true);
+                $value = $property->getValue($entity);
+                return (bool)$value && (bool)$this->find($value);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param $entity
+     */
+    public function delete($entity)
+    {
+        $query = $this->builder->getDeleteQuery();
+        try {
+            $fields = $this->reverseMap($entity);
+        } catch (\ReflectionException $e) {
+            return;
+        }
+        $pk = $this->retrieveMappedPrimaryKeyFromAttributes($fields);
+        if (isset($this->mapping[$this->primaryKey]) && null !== $pk && $this->target) {
+            $query->from([$this->target]);
+            $query->where([
+                $this->mapping[$this->primaryKey] => $pk
+            ]);
+            $this->gateway->execute(new QueryRequest($query, $this->primaryKey));
+        }
     }
 }

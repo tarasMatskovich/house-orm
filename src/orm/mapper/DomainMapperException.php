@@ -23,7 +23,7 @@ class DomainMapperException extends \Exception
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $message, int $code, Throwable $previous = null)
+    public function __construct(string $message, $code = null, Throwable $previous = null)
     {
         $message = 'Cannot create mapping to entity: ' . $message;
         parent::__construct($message, $code, $previous);

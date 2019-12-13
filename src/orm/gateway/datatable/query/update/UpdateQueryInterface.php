@@ -48,4 +48,19 @@ interface UpdateQueryInterface extends QueryInterface
      */
     public function offset($offset);
 
+    /**
+     * @return array
+     */
+    public function getUpdatePart();
+
+    /**
+     * @return array
+     */
+    public function getSetPart();
+
+    /**
+     * @return array
+     */
+    public function getWherePart();
+
 }

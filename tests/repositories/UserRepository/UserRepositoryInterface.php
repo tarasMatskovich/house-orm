@@ -9,6 +9,7 @@
 namespace tests\repositories\UserRepository;
 
 use houseorm\mapper\DomainMapperInterface;
+use tests\entities\User\UserInterface;
 
 /**
  * Interface UserRepositoryInterface
@@ -16,5 +17,11 @@ use houseorm\mapper\DomainMapperInterface;
  */
 interface UserRepositoryInterface extends DomainMapperInterface
 {
+
+    /**
+     * @param $id
+     * @return UserInterface|null
+     */
+    public function find($id);
 
 }

@@ -132,4 +132,20 @@ class DeleteQuery implements DeleteQueryInterface
         }
         return $statement;
     }
+
+    /**
+     * @return array
+     */
+    public function getFromPart()
+    {
+        return $this->from;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWherePart()
+    {
+        return $this->criteria;
+    }
 }

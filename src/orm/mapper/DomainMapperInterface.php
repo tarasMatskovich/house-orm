@@ -19,7 +19,7 @@ interface DomainMapperInterface
 
     /**
      * @param $id
-     * @return DomainObjectInterface
+     * @return DomainObjectInterface|null
      */
     public function find($id);
 
@@ -34,5 +34,17 @@ interface DomainMapperInterface
      * @return DomainObjectInterface
      */
     public function findOneBy($criteria);
+
+    /**
+     * @param $entity
+     * @return void
+     */
+    public function save(&$entity);
+
+    /**
+     * @param $entity
+     * @return void
+     */
+    public function delete($entity);
 
 }
