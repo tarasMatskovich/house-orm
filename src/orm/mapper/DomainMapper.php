@@ -12,6 +12,7 @@ namespace houseorm\mapper;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
+use houseorm\EntityManagerInterface;
 use houseorm\gateway\builder\QueryBuilder;
 use houseorm\gateway\builder\QueryBuilderInterface;
 use houseorm\gateway\connection\PdoConnection;
@@ -63,6 +64,11 @@ class DomainMapper implements DomainMapperInterface
      * @var string
      */
     private $target;
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
 
     /**
      * DomainMapper constructor.
@@ -320,6 +326,7 @@ class DomainMapper implements DomainMapperInterface
     {
         $query = $this->builder->getInsertQuery();
         $query->into([$this->target]);
+        $attributes = $this->removePrimaryKeyFromFields($attributes);
         $query->fields($attributes);
         $queryRequest = new QueryRequest($query, $this->primaryKey);
         $this->gateway->execute($queryRequest);
@@ -334,8 +341,9 @@ class DomainMapper implements DomainMapperInterface
     {
         $query = $this->builder->getUpdateQuery();
         $query->update([$this->target]);
-        $query->set($attributes);
         $pk = $this->retrieveMappedPrimaryKeyFromAttributes($attributes);
+        $attributes = $this->removePrimaryKeyFromFields($attributes);
+        $query->set($attributes);
         if ($pk) {
             $query->where([
                 $this->primaryKey => $pk
@@ -397,5 +405,28 @@ class DomainMapper implements DomainMapperInterface
             ]);
             $this->gateway->execute(new QueryRequest($query, $this->primaryKey));
         }
+    }
+
+    /**
+     * @param EntityManagerInterface $em
+     */
+    public function setEntityManager(EntityManagerInterface $em)
+    {
+        $this->entityManager = $em;
+        if (!$this->gateway->getConnection()->getConfig()) {
+            $this->gateway->setConfigToConnection($em->getDefaultConfig());
+        }
+    }
+
+    /**
+     * @param array $fields
+     * @return array
+     */
+    private function removePrimaryKeyFromFields(array $fields)
+    {
+        if (array_key_exists($this->primaryKey, $fields)) {
+            unset($fields[$this->primaryKey]);
+        }
+        return $fields;
     }
 }

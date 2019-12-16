@@ -8,6 +8,7 @@
 
 namespace houseorm\gateway\connection;
 
+use houseorm\config\ConfigInterface;
 use houseorm\gateway\datatable\query\delete\DeleteQueryInterface;
 use houseorm\gateway\datatable\query\insert\InsertQueryInterface;
 use houseorm\gateway\datatable\query\select\SelectQueryInterface;
@@ -223,5 +224,21 @@ class InMemoryConnection implements ConnectionInterface
     private function setLastInsertId($id)
     {
         $this->lastInsertId = $id;
+    }
+
+    /**
+     * @return ConfigInterface|null
+     */
+    public function getConfig()
+    {
+        return null;
+    }
+
+    /**
+     * @param ConfigInterface $config
+     */
+    public function setConfig(ConfigInterface $config)
+    {
+        return;
     }
 }

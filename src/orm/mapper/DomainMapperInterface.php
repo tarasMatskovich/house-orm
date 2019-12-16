@@ -8,6 +8,7 @@
 
 namespace houseorm\mapper;
 
+use houseorm\EntityManagerInterface;
 use houseorm\mapper\object\DomainObjectInterface;
 
 /**
@@ -46,5 +47,11 @@ interface DomainMapperInterface
      * @return void
      */
     public function delete($entity);
+
+    /**
+     * @param EntityManagerInterface $em
+     * @return void
+     */
+    public function setEntityManager(EntityManagerInterface $em);
 
 }

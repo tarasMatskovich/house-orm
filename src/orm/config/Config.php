@@ -21,14 +21,41 @@ class Config implements ConfigInterface
         self::DRIVER_MYSQL
     ];
 
+    /**
+     * @var string
+     */
     private $driver;
 
+    /**
+     * @var string
+     */
+    private $host;
+
+    /**
+     * @var string
+     */
     private $database;
 
+    /**
+     * @var string
+     */
     private $user;
 
+    /**
+     * @var string
+     */
     private $password;
 
+    /**
+     * @var string
+     */
+    private $charset;
+
+    /**
+     * Config constructor.
+     * @param array $attributes
+     * @throws ConfigException
+     */
     public function __construct(array $attributes)
     {
         $this->parseAttributes($attributes);
@@ -46,8 +73,20 @@ class Config implements ConfigInterface
             }
             $this->driver = $attributes['driver'];
         }
+        if (isset($attributes['host'])) {
+            $this->host = $attributes['host'];
+        }
         if (isset($attributes['database'])) {
             $this->database = $attributes['database'];
+        }
+        if (isset($attributes['user'])) {
+            $this->user = $attributes['user'];
+        }
+        if (isset($attributes['password'])) {
+            $this->password = $attributes['password'];
+        }
+        if (isset($attributes['charset'])) {
+            $this->charset = $attributes['charset'];
         }
     }
 
@@ -56,7 +95,14 @@ class Config implements ConfigInterface
      */
     public function toArray()
     {
-        // TODO: Implement toArray() method.
+        return [
+            'driver' => $this->getDriver(),
+            'host' => $this->getHost(),
+            'database' => $this->getDatabase(),
+            'user' => $this->getUser(),
+            'password' => $this->getPassword(),
+            'charset' => $this->getCharset()
+        ];
     }
 
     /**
@@ -64,7 +110,7 @@ class Config implements ConfigInterface
      */
     public function getDriver()
     {
-        // TODO: Implement getDriver() method.
+        return $this->driver;
     }
 
     /**
@@ -73,7 +119,23 @@ class Config implements ConfigInterface
      */
     public function setDriver($driver)
     {
-        // TODO: Implement setDriver() method.
+        $this->driver = $driver;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * @param $host
+     */
+    public function setHost($host)
+    {
+        $this->host = $host;
     }
 
     /**
@@ -81,7 +143,7 @@ class Config implements ConfigInterface
      */
     public function getDatabase()
     {
-        // TODO: Implement getDatabase() method.
+        return $this->database;
     }
 
     /**
@@ -90,7 +152,7 @@ class Config implements ConfigInterface
      */
     public function setDatabase($database)
     {
-        // TODO: Implement setDatabase() method.
+        $this->database = $database;
     }
 
     /**
@@ -98,7 +160,7 @@ class Config implements ConfigInterface
      */
     public function getUser()
     {
-        // TODO: Implement getUser() method.
+        return $this->user;
     }
 
     /**
@@ -107,7 +169,7 @@ class Config implements ConfigInterface
      */
     public function setUser($user)
     {
-        // TODO: Implement setUser() method.
+        $this->user = $user;
     }
 
     /**
@@ -115,7 +177,7 @@ class Config implements ConfigInterface
      */
     public function getPassword()
     {
-        // TODO: Implement getPassword() method.
+        return $this->password;
     }
 
     /**
@@ -124,6 +186,22 @@ class Config implements ConfigInterface
      */
     public function setPassword($password)
     {
-        // TODO: Implement setPassword() method.
+        $this->password = $password;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCharset()
+    {
+        return $this->charset;
+    }
+
+    /**
+     * @param $charset
+     */
+    public function setCharset($charset)
+    {
+        $this->charset = $charset;
     }
 }

@@ -8,6 +8,7 @@
 
 namespace houseorm;
 
+use houseorm\config\ConfigInterface;
 use houseorm\mapper\DomainMapperInterface;
 
 /**
@@ -29,5 +30,16 @@ interface EntityManagerInterface
      * @return void
      */
     public function setMapper(string $key, DomainMapperInterface $mapper);
+
+    /**
+     * @param ConfigInterface $config
+     * @return void
+     */
+    public function setDefaultConfig(ConfigInterface $config);
+
+    /**
+     * @return ConfigInterface
+     */
+    public function getDefaultConfig();
 
 }

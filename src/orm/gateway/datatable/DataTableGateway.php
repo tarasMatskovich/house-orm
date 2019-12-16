@@ -9,6 +9,7 @@
 namespace houseorm\gateway\datatable;
 
 
+use houseorm\config\ConfigInterface;
 use houseorm\gateway\connection\ConnectionInterface;
 use houseorm\gateway\datatable\request\QueryRequestInterface;
 use houseorm\gateway\GatewayInterface;
@@ -49,5 +50,21 @@ class DataTableGateway implements GatewayInterface
     public function getLastInsertId()
     {
         return $this->connection->getLastInsertId();
+    }
+
+    /**
+     * @return ConnectionInterface
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     * @param ConfigInterface $config
+     */
+    public function setConfigToConnection(ConfigInterface $config)
+    {
+        $this->connection->setConfig($config);
     }
 }

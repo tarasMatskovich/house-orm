@@ -9,6 +9,7 @@
 namespace houseorm;
 
 
+use houseorm\config\ConfigInterface;
 use houseorm\mapper\DomainMapperInterface;
 
 /**
@@ -24,8 +25,13 @@ class EntityManager implements EntityManagerInterface
     private $mappers;
 
     /**
+     * @var ConfigInterface
+     */
+    private $config;
+
+    /**
      * @param string $mapper
-     * @return void
+     * @return DomainMapperInterface
      * @throws EntityManagerException
      */
     public function getMapper(string $mapper)
@@ -33,6 +39,7 @@ class EntityManager implements EntityManagerInterface
         if (!isset($this->mappers[$mapper])) {
             throw new EntityManagerException("Mapper {$mapper}  was not found");
         }
+        return $this->mappers[$mapper];
     }
 
     /**
@@ -42,6 +49,23 @@ class EntityManager implements EntityManagerInterface
      */
     public function setMapper(string $key, DomainMapperInterface $mapper)
     {
+        $mapper->setEntityManager($this);
         $this->mappers[$key] = $mapper;
+    }
+
+    /**
+     * @param ConfigInterface $config
+     */
+    public function setDefaultConfig(ConfigInterface $config)
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * @return ConfigInterface
+     */
+    public function getDefaultConfig()
+    {
+        return $this->config;
     }
 }

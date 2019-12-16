@@ -36,4 +36,12 @@ trait LimitQueryTrait
         return ($this->limit) ? BindingsEnum::LIMIT_BINDING : null;
     }
 
+    /**
+     * @return int
+     */
+    public function getLimitPart()
+    {
+        return $this->limit;
+    }
+
 }

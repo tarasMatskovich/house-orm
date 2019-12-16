@@ -8,6 +8,8 @@
 
 namespace houseorm\gateway;
 
+use houseorm\config\ConfigInterface;
+use houseorm\gateway\connection\ConnectionInterface;
 use houseorm\gateway\datatable\request\QueryRequestInterface;
 
 /**
@@ -27,5 +29,16 @@ interface GatewayInterface
      * @return int|null
      */
     public function getLastInsertId();
+
+    /**
+     * @return ConnectionInterface
+     */
+    public function getConnection();
+
+    /**
+     * @param ConfigInterface $config
+     * @return void
+     */
+    public function setConfigToConnection(ConfigInterface $config);
 
 }

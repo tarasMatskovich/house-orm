@@ -34,6 +34,17 @@ interface ConfigInterface
     /**
      * @return string
      */
+    public function getHost();
+
+    /**
+     * @param $host
+     * @return void
+     */
+    public function setHost($host);
+
+    /**
+     * @return string
+     */
     public function getDatabase();
 
     /**
@@ -63,5 +74,16 @@ interface ConfigInterface
      * @return void
      */
     public function setPassword($password);
+
+    /**
+     * @return string
+     */
+    public function getCharset();
+
+    /**
+     * @param $charset
+     * @return void
+     */
+    public function setCharset($charset);
 
 }
