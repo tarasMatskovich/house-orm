@@ -76,4 +76,53 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
         $userRepository->delete($user);
     }
 
+    /**
+     * @return void
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\config\ConfigException
+     * @throws \houseorm\mapper\DomainMapperException
+     * @throws \houseorm\EntityManagerException
+     */
+    public function testFindOneBy()
+    {
+        $entityManager = new EntityManager();
+        $config = new Config([
+            'driver' => Config::DRIVER_MYSQL,
+            'host'=> '127.0.0.1',
+            'database' => 'orm',
+            'user' => 'root',
+            'password' => ''
+        ]);
+        $entityManager->setDefaultConfig($config);
+        $entityManager->setMapper('User', new UserRepository(User::class));
+        /**
+         * @var UserRepositoryInterface $userRepository
+         */
+        $userRepository = $entityManager->getMapper('User');
+        $users = $userRepository->findBy([]);
+    }
+
+    /**
+     * @return void
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\mapper\DomainMapperException
+     */
+    public function testFindByInMemory()
+    {
+        /**
+         * @var $userRepository UserRepositoryInterface
+         */
+        $userRepository = new UserRepository(
+            User::class,
+            new DataTableGateway(new InMemoryConnection())
+        );
+        $user1 = new User('taras');
+        $user2 = new User('taras');
+        $user3 = new User('bohdan');
+        $userRepository->save($user1);
+        $userRepository->save($user2);
+        $userRepository->save($user3);
+        $user = $userRepository->findBy(['name' => 'taras2']);
+    }
+
 }

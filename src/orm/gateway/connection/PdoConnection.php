@@ -217,7 +217,7 @@ class PdoConnection implements ConnectionInterface
         $where = $query->getWherePart();
         if ($where) {
             foreach ($where as $key => $value) {
-                $stmt->bindParam(BindingsEnum::CRITERIA_BINDING . $key, $value);
+                $stmt->bindValue(BindingsEnum::CRITERIA_BINDING . $key, $value, $this->getBindingType($value));
             }
         }
         return $stmt;
@@ -235,7 +235,7 @@ class PdoConnection implements ConnectionInterface
          */
         $limit = $query->getLimitPart();
         if ($limit) {
-            $stmt->bindParam(BindingsEnum::LIMIT_BINDING, $limit, \PDO::PARAM_INT);
+            $stmt->bindValue(BindingsEnum::LIMIT_BINDING, $limit, \PDO::PARAM_INT);
         }
         return $stmt;
     }
@@ -257,5 +257,26 @@ class PdoConnection implements ConnectionInterface
             }
         }
         return $stmt;
+    }
+
+    /**
+     * @param $value
+     * @return int
+     */
+    private function getBindingType($value)
+    {
+        if (is_string($value)) {
+            return \PDO::PARAM_STR;
+        }
+        if (is_bool($value)) {
+            return \PDO::PARAM_BOOL;
+        }
+        if (is_null($value)) {
+            return \PDO::PARAM_NULL;
+        }
+        if (is_integer($value) || is_float($value)) {
+            return \PDO::PARAM_INT;
+        }
+        return \PDO::PARAM_STR;
     }
 }

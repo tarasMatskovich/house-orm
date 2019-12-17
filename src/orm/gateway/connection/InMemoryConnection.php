@@ -70,13 +70,16 @@ class InMemoryConnection implements ConnectionInterface
         $rows = [];
         if ($target) {
             $where = $query->getWherePart();
-            if (array_key_exists($queryRequest->getPrimaryKey(), $where)) {
-                $pk = $where[$queryRequest->getPrimaryKey()];
-                if ($this->isTargetNotEmpty($target)) {
-                    foreach ($this->data[$target]['data'] as $row) {
-                        if (isset($row[$queryRequest->getPrimaryKey()]) && $row[$queryRequest->getPrimaryKey()] == $pk) {
-                            $rows[] = $row;
+            if ($this->isTargetNotEmpty($target)) {
+                foreach ($this->data[$target]['data'] as $row) {
+                    $matched = true;
+                    foreach ($where as $field => $value) {
+                        if (!isset($row[$field]) || $row[$field] != $value) {
+                            $matched = false;
                         }
+                    }
+                    if ($matched) {
+                        $rows[] = $row;
                     }
                 }
             }

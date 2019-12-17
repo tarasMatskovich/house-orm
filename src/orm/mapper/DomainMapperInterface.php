@@ -9,6 +9,7 @@
 namespace houseorm\mapper;
 
 use houseorm\EntityManagerInterface;
+use houseorm\mapper\collection\DomainCollectionInterface;
 use houseorm\mapper\object\DomainObjectInterface;
 
 /**
@@ -26,13 +27,13 @@ interface DomainMapperInterface
 
     /**
      * @param array $criteria
-     * @return DomainObjectInterface[]
+     * @return DomainCollectionInterface
      */
     public function findBy($criteria);
 
     /**
      * @param array $criteria
-     * @return DomainObjectInterface
+     * @return DomainObjectInterface|null
      */
     public function findOneBy($criteria);
 

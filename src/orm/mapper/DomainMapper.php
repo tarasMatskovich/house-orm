@@ -15,12 +15,15 @@ use Doctrine\Common\Annotations\Reader;
 use houseorm\EntityManagerInterface;
 use houseorm\gateway\builder\QueryBuilder;
 use houseorm\gateway\builder\QueryBuilderInterface;
+use houseorm\gateway\connection\InMemoryConnection;
 use houseorm\gateway\connection\PdoConnection;
 use houseorm\gateway\datatable\DataTableGateway;
 use houseorm\gateway\datatable\request\QueryRequest;
 use houseorm\gateway\GatewayInterface;
 use houseorm\mapper\annotations\Field;
 use houseorm\mapper\annotations\Gateway;
+use houseorm\mapper\collection\DomainCollection;
+use houseorm\mapper\collection\DomainCollectionInterface;
 use houseorm\mapper\object\DomainObjectInterface;
 
 /**
@@ -254,7 +257,7 @@ class DomainMapper implements DomainMapperInterface
         $query->limit(1);
         $queryRequest = new QueryRequest($query, $pk);
         $result = $this->gateway->execute($queryRequest);
-        if (isset($result['result'])) {
+        if (isset($result['result']) && !empty($result['result'])) {
             try {
                 return $this->doMap($this->fetchOne($result['result']));
             } catch (DomainMapperException $e) {
@@ -275,20 +278,53 @@ class DomainMapper implements DomainMapperInterface
 
     /**
      * @param array $criteria
-     * @return DomainObjectInterface[]
+     * @return DomainCollectionInterface
      */
     public function findBy($criteria)
     {
-        // TODO: Implement findBy() method.
+        $pk = $this->primaryKey;
+        $query = $this->builder->getSelectQuery();
+        $query->select(['*']);
+        $query->from([$this->target]);
+        $query->where($this->getCriteriaByMapping($criteria));
+        $queryRequest = new QueryRequest($query, $pk);
+        $result = $this->gateway->execute($queryRequest);
+        $collection = new DomainCollection();
+        if (isset($result['result']) && !empty($result['result'])) {
+            foreach ($result['result'] as $res) {
+                try {
+                    $entity = $this->doMap($res);
+                    $collection->add($entity);
+                } catch (DomainMapperException $e) {
+                }
+            }
+            return $collection;
+        }
+        return new DomainCollection();
     }
 
     /**
      * @param array $criteria
-     * @return DomainObjectInterface
+     * @return DomainObjectInterface|null
      */
     public function findOneBy($criteria)
     {
-        // TODO: Implement findOneBy() method.
+        $pk = $this->primaryKey;
+        $query = $this->builder->getSelectQuery();
+        $query->select(['*']);
+        $query->from([$this->target]);
+        $query->where($this->getCriteriaByMapping($criteria));
+        $query->limit(1);
+        $queryRequest = new QueryRequest($query, $pk);
+        $result = $this->gateway->execute($queryRequest);
+        if (isset($result['result']) && !empty($result['result'])) {
+            try {
+                return $this->doMap($this->fetchOne($result['result']));
+            } catch (DomainMapperException $e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     /**
@@ -424,9 +460,24 @@ class DomainMapper implements DomainMapperInterface
      */
     private function removePrimaryKeyFromFields(array $fields)
     {
-        if (array_key_exists($this->primaryKey, $fields)) {
+        if (array_key_exists($this->primaryKey, $fields) && !($this->gateway->getConnection() instanceof InMemoryConnection)) {
             unset($fields[$this->primaryKey]);
         }
         return $fields;
+    }
+
+    /**
+     * @param array $attributes
+     * @return array
+     */
+    private function getCriteriaByMapping(array $attributes)
+    {
+        $criteria = [];
+        foreach ($this->mapping as $field => $map) {
+            if (isset($attributes[$field])) {
+                $criteria[$map] = $attributes[$field];
+            }
+        }
+        return $criteria;
     }
 }
