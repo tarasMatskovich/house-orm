@@ -22,6 +22,7 @@ use houseorm\gateway\datatable\request\QueryRequest;
 use houseorm\gateway\GatewayInterface;
 use houseorm\mapper\annotations\Field;
 use houseorm\mapper\annotations\Gateway;
+use houseorm\mapper\annotations\Relation;
 use houseorm\mapper\collection\DomainCollection;
 use houseorm\mapper\collection\DomainCollectionInterface;
 use houseorm\mapper\object\DomainObjectInterface;
@@ -57,6 +58,11 @@ class DomainMapper implements DomainMapperInterface
      * @var array
      */
     private $mapping;
+
+    /**
+     * @var array
+     */
+    private $relations;
 
     /**
      * @var QueryBuilderInterface
@@ -175,7 +181,7 @@ class DomainMapper implements DomainMapperInterface
      * @return array
      * @throws DomainMapperException
      */
-    private function getMapping()
+    public function getMapping()
     {
         try {
             $reflectionClass = new \ReflectionClass($this->entity);
@@ -183,9 +189,21 @@ class DomainMapper implements DomainMapperInterface
             $mapping = [];
             foreach ($privateProperties as $privateProperty) {
                 $propertyAnnotation = $this->reader->getPropertyAnnotation($privateProperty, Field::class);
-                $map = $propertyAnnotation->map;
-                if ($map) {
-                    $mapping[$privateProperty->getName()] = $map;
+                if ($propertyAnnotation) {
+                    $map = $propertyAnnotation->map;
+                    if ($map) {
+                        $mapping[$privateProperty->getName()] = $map;
+                        $relationAnnotation = $this->reader->getPropertyAnnotation($privateProperty, Relation::class);
+                        $entity = $relationAnnotation->entity;
+                        $key = $relationAnnotation->key;
+                        if ($entity && $key) {
+                            $this->relations[$entity] = [
+                                'type' => 'simple',
+                                'key' => $key,
+                                'localKey' => $privateProperty->getName()
+                            ];
+                        }
+                    }
                 }
             }
             return $mapping;
@@ -208,7 +226,7 @@ class DomainMapper implements DomainMapperInterface
                 $entityProperties = $entityReflectionClass->getProperties(\ReflectionProperty::IS_PRIVATE);
                 foreach ($entityProperties as $entityProperty) {
                     $propertyName = $entityProperty->getName();
-                    if (array_key_exists($propertyName, $this->mapping) && array_key_exists($propertyName, $result)) {
+                    if (array_key_exists($propertyName, $this->mapping) && array_key_exists($this->mapping[$propertyName], $result)) {
                         $entityProperty->setAccessible(true);
                         $entityProperty->setValue($entityObject, $result[$this->mapping[$propertyName]]);
                         $entityProperty->setAccessible(false);
@@ -329,6 +347,70 @@ class DomainMapper implements DomainMapperInterface
 
     /**
      * @param $entity
+     * @param $relativeEntityName
+     * @return DomainCollectionInterface
+     */
+    public function findRelative($entity, $relativeEntityName)
+    {
+        if (isset($this->relations[$relativeEntityName])) {
+            $relation = $this->relations[$relativeEntityName];
+            $mapper = $this->entityManager->getMapper($relativeEntityName);
+            if ($mapper) {
+                $type = $relation['type'] ?? null;
+                switch ($type) {
+                    case 'simple':
+                    default:
+                        $key = $relation['key'] ?? null;
+                        $localKey = $relation['localKey'] ?? null;
+                        if ($key && $localKey) {
+                            $relativeEntityMapping = $mapper->getMapping();
+                            $mappedKey = $relativeEntityMapping[$key] ?? null;
+                            if ($mappedKey) {
+                                $value = $this->retriveLocalKeyValue($entity, $localKey);
+                                return $mapper->findBy([$key => $value]);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        return new DomainCollection();
+    }
+
+    /**
+     * @param $entity
+     * @param $relativeEntityName
+     * @return DomainObjectInterface|null
+     */
+    public function findRelativeOne($entity, $relativeEntityName)
+    {
+        if (isset($this->relations[$relativeEntityName])) {
+            $relation = $this->relations[$relativeEntityName];
+            $mapper = $this->entityManager->getMapper($relativeEntityName);
+            if ($mapper) {
+                $type = $relation['type'] ?? null;
+                switch ($type) {
+                    case 'simple':
+                    default:
+                        $key = $relation['key'] ?? null;
+                        $localKey = $relation['localKey'] ?? null;
+                        if ($key) {
+                            $relativeEntityMapping = $mapper->getMapping();
+                            $mappedKey = $relativeEntityMapping[$key] ?? null;
+                            if ($mappedKey) {
+                                $value = $this->retriveLocalKeyValue($entity, $localKey);
+                                return $mapper->findOneBy([$key => $value]);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param $entity
      * @return void
      */
     public function save(&$entity)
@@ -351,6 +433,21 @@ class DomainMapper implements DomainMapperInterface
         if ($lastInsertId) {
             $refreshedEntity = $this->find($lastInsertId);
             $entity = $refreshedEntity;
+        }
+    }
+
+    /**
+     * @param $entity
+     * @param $relativeEntityName
+     */
+    public function saveRelative(&$entity, $relativeEntityName)
+    {
+        if (null === $relativeEntityName) {
+            return;
+        }
+        $mapper = $this->entityManager->getMapper($relativeEntityName);
+        if (null !== $mapper) {
+            $mapper->save($entity);
         }
     }
 
@@ -424,6 +521,31 @@ class DomainMapper implements DomainMapperInterface
 
     /**
      * @param $entity
+     * @param $localKey
+     * @return mixed
+     */
+    private function retriveLocalKeyValue($entity, $localKey)
+    {
+        try {
+            $entityReflectionClass = new \ReflectionClass($entity);
+            $privateProperties = $entityReflectionClass->getProperties(\ReflectionProperty::IS_PRIVATE);
+            foreach ($privateProperties as $property) {
+                $field = $property->getName();
+                if ((string)$field === (string)$localKey) {
+                    $property->setAccessible(true);
+                    $value = $property->getValue($entity);
+                    $property->setAccessible(false);
+                    return $value;
+                }
+            }
+        } catch (\ReflectionException $e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * @param $entity
      */
     public function delete($entity)
     {
@@ -479,5 +601,13 @@ class DomainMapper implements DomainMapperInterface
             }
         }
         return $criteria;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntity()
+    {
+        return $this->entity;
     }
 }

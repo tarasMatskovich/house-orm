@@ -20,6 +20,11 @@ interface DomainMapperInterface
 {
 
     /**
+     * @return array
+     */
+    public function getMapping();
+
+    /**
      * @param $id
      * @return DomainObjectInterface|null
      */
@@ -39,9 +44,30 @@ interface DomainMapperInterface
 
     /**
      * @param $entity
+     * @param $relativeEntityName
+     * @return DomainCollectionInterface
+     */
+    public function findRelative($entity, $relativeEntityName);
+
+    /**
+     * @param $entity
+     * @param $relativeEntityName
+     * @return DomainObjectInterface|null
+     */
+    public function findRelativeOne($entity, $relativeEntityName);
+
+    /**
+     * @param $entity
      * @return void
      */
     public function save(&$entity);
+
+    /**
+     * @param $entity
+     * @param $relativeEntityName
+     * @return void
+     */
+    public function saveRelative(&$entity, $relativeEntityName);
 
     /**
      * @param $entity
@@ -54,5 +80,12 @@ interface DomainMapperInterface
      * @return void
      */
     public function setEntityManager(EntityManagerInterface $em);
+
+    /**
+     * @return string
+     */
+    public function getEntity();
+
+
 
 }

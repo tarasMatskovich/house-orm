@@ -12,7 +12,10 @@ use houseorm\config\Config;
 use houseorm\EntityManager;
 use houseorm\gateway\connection\InMemoryConnection;
 use houseorm\gateway\datatable\DataTableGateway;
+use tests\entities\Comment\Comment;
 use tests\entities\User\User;
+use tests\entities\User\UserInterface;
+use tests\repositories\CommentRepository\CommentRepository;
 use tests\repositories\UserRepository\UserRepository;
 use tests\repositories\UserRepository\UserRepositoryInterface;
 
@@ -123,6 +126,53 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
         $userRepository->save($user2);
         $userRepository->save($user3);
         $user = $userRepository->findBy(['name' => 'taras2']);
+    }
+
+    /**
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\mapper\DomainMapperException
+     * @throws \houseorm\config\ConfigException
+     * @throws \houseorm\EntityManagerException
+     */
+    public function testRelations()
+    {
+        $entityManager = new EntityManager();
+        $config = new Config([
+            'driver' => Config::DRIVER_MEMORY
+        ]);
+        $entityManager->setDefaultConfig($config);
+        $connection = new InMemoryConnection();
+        $userRepository = new UserRepository(
+            User::class,
+            new DataTableGateway($connection)
+        );
+        $entityManager->setMapper('User', $userRepository);
+        $commentRepository = new CommentRepository(
+            Comment::class,
+            new DataTableGateway($connection)
+        );
+        $entityManager->setMapper('Comment', $commentRepository);
+        $userRepository = $entityManager->getMapper('User');
+        $commentRepository = $entityManager->getMapper('Comment');
+        $user1 = new User('Taras');
+        $user2 = new User('Bohdan');
+        $userRepository->save($user1);
+        $userRepository->save($user2);
+        $comment1 = new Comment('taras comment', $user1->getId());
+        $comment11 = new Comment('taras comment 2', $user1->getId());
+        $comment2 = new Comment('bohdan coment', $user2->getId());
+        $commentRepository->save($comment1);
+        $commentRepository->save($comment11);
+        $commentRepository->save($comment2);
+        $user1Comments = $userRepository->findRelative($user1, 'Comment');
+        $user2Comments = $userRepository->findRelative($user2, 'Comment');
+        /**
+         * @var UserInterface $commentUser
+         */
+        $commentUser = $commentRepository->findRelativeOne($comment1, 'User');
+        $commentUser->setName('Taras 2');
+        $commentRepository->saveRelative($commentUser, 'User');
+        $commentUser = $commentRepository->findRelativeOne($comment1, 'User');
     }
 
 }

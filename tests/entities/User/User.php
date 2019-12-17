@@ -11,6 +11,7 @@ namespace tests\entities\User;
 
 use houseorm\mapper\annotations\Gateway;
 use houseorm\mapper\annotations\Field;
+use houseorm\mapper\annotations\Relation;
 
 /**
  * Class User
@@ -23,6 +24,7 @@ class User implements UserInterface
     /**
      * @var int
      * @Field(map="id")
+     * @Relation(entity="Comment", key="userId")
      */
     private $id;
 
