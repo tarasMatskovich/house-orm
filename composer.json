@@ -2,7 +2,7 @@
   "name": "house-orm",
   "version": "0.1.0",
   "description": "PHP ORM library",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "license": "proprietary",
   "authors": [
     {
