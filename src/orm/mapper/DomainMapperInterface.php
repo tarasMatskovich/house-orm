@@ -58,6 +58,22 @@ interface DomainMapperInterface
 
     /**
      * @param $entity
+     * @param $relativeEntityName
+     * @param $criteria
+     * @return DomainCollectionInterface
+     */
+    public function findRelativeBy($entity, $relativeEntityName, $criteria);
+
+    /**
+     * @param $entity
+     * @param $relativeEntityName
+     * @param $criteria
+     * @return DomainObjectInterface|null
+     */
+    public function findRelativeOneBy($entity, $relativeEntityName, $criteria);
+
+    /**
+     * @param $entity
      * @return void
      */
     public function save(&$entity);

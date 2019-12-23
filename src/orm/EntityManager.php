@@ -30,16 +30,21 @@ class EntityManager implements EntityManagerInterface
     private $config;
 
     /**
+     * EntityManager constructor.
+     * @param ConfigInterface $config
+     */
+    public function __construct(ConfigInterface $config)
+    {
+        $this->config = $config;
+    }
+
+    /**
      * @param string $mapper
-     * @return DomainMapperInterface
-     * @throws EntityManagerException
+     * @return DomainMapperInterface|null
      */
     public function getMapper(string $mapper)
     {
-        if (!isset($this->mappers[$mapper])) {
-            throw new EntityManagerException("Mapper {$mapper}  was not found");
-        }
-        return $this->mappers[$mapper];
+        return $this->mappers[$mapper] ?? null;
     }
 
     /**

@@ -34,6 +34,20 @@ class InMemoryConnection implements ConnectionInterface
     private $lastInsertId;
 
     /**
+     * @var ConfigInterface
+     */
+    private $config;
+
+    /**
+     * InMemoryConnection constructor.
+     * @param ConfigInterface|null $config
+     */
+    public function __construct(ConfigInterface $config = null)
+    {
+        $this->config = $config;
+    }
+
+    /**
      * @param QueryRequestInterface $queryRequest
      * @return array
      * TODO Add Executor strategy ??

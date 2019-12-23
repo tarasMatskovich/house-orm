@@ -12,11 +12,14 @@ namespace tests\entities\User;
 use houseorm\mapper\annotations\Gateway;
 use houseorm\mapper\annotations\Field;
 use houseorm\mapper\annotations\Relation;
+use houseorm\mapper\annotations\ViaRelation;
 
 /**
  * Class User
  * @package tests\entities\User
  * @Gateway(type="datatable.users")
+ * @ViaRelation(entity="Role", via="RoleUser", firstLocalKey="id", firstForeignKey="userId", secondLocalKey="id", secondForeignKey="roleId")
+ * @ViaRelation(entity="Permission", via="PermissionUser", firstLocalKey="id", firstForeignKey="userId", secondLocalKey="id", secondForeignKey="permissionId")
  */
 class User implements UserInterface
 {

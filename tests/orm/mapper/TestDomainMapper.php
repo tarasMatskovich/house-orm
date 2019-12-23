@@ -9,13 +9,19 @@
 namespace tests\orm\mapper;
 
 use houseorm\config\Config;
+use houseorm\config\ConfigInterface;
 use houseorm\EntityManager;
-use houseorm\gateway\connection\InMemoryConnection;
-use houseorm\gateway\datatable\DataTableGateway;
+use houseorm\EntityManagerInterface;
 use tests\entities\Comment\Comment;
+use tests\entities\Role\Role;
+use tests\entities\RoleUser\RoleUser;
 use tests\entities\User\User;
-use tests\entities\User\UserInterface;
 use tests\repositories\CommentRepository\CommentRepository;
+use tests\repositories\CommentRepository\CommentRepositoryInterface;
+use tests\repositories\Role\RoleRepository;
+use tests\repositories\Role\RoleRepositoryInterface;
+use tests\repositories\RoleUser\RoleUserRepository;
+use tests\repositories\RoleUser\RoleUserRepositoryInterface;
 use tests\repositories\UserRepository\UserRepository;
 use tests\repositories\UserRepository\UserRepositoryInterface;
 
@@ -27,152 +33,134 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
 {
 
     /**
+     * @var array
+     */
+    private $databaseConfig = [
+        'driver' => Config::DRIVER_MYSQL,
+        'host'=> '127.0.0.1',
+        'database' => 'orm',
+        'user' => 'root',
+        'password' => ''
+    ];
+
+    /**
+     * @var array
+     */
+    private $memoryConfig = [
+        'driver' => Config::DRIVER_MEMORY
+    ];
+
+    /**
      * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\config\ConfigException
      * @throws \houseorm\mapper\DomainMapperException
      */
-    public function testUserRepositoryInMemory()
+    public function testMemoryMapper()
     {
-        /**
-         * @var $userRepository UserRepositoryInterface
-         */
-        $userRepository = new UserRepository(
-            User::class,
-            new DataTableGateway(new InMemoryConnection())
-        );
-        $user = new User('Тарас');
-        $userRepository->save($user);
-        $newUser = $userRepository->find($user->getId());
-        $user->setName('A');
-        $newUser->setName('B');
-        $userRepository->save($newUser);
-        $newUserAfterUpdate = $userRepository->find($newUser->getId());
-        $userRepository->delete($newUserAfterUpdate);
-        $newUserAfterDelete = $userRepository->find($newUserAfterUpdate->getId());
+        $config = new Config($this->memoryConfig);
+        $entityManager = $this->makeEntityManager($config);
+        $this->testMapper($entityManager);
     }
 
     /**
      * @throws \Doctrine\Common\Annotations\AnnotationException
      * @throws \houseorm\config\ConfigException
      * @throws \houseorm\mapper\DomainMapperException
-     * @throws \houseorm\EntityManagerException
      */
-    public function testMapperWithDatabase()
+    public function testDatabaseMapper()
     {
-        $entityManager = new EntityManager();
-        $config = new Config([
-            'driver' => Config::DRIVER_MYSQL,
-            'host'=> '127.0.0.1',
-            'database' => 'orm',
-            'user' => 'root',
-            'password' => ''
-        ]);
-        $entityManager->setDefaultConfig($config);
-        $entityManager->setMapper('User', new UserRepository(User::class));
-        $user = new User('Test user');
-        /**
-         * @var UserRepositoryInterface $userRepository
-         */
-        $userRepository = $entityManager->getMapper('User');
-//        $userRepository->save($user);
-        $user = $userRepository->find(4);
-        $user->setName('Updated Test User');
-        $userRepository->delete($user);
+        $config = new Config($this->databaseConfig);
+        $entityManager = $this->makeEntityManager($config);
+        $this->testMapper($entityManager);
     }
 
     /**
-     * @return void
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \houseorm\config\ConfigException
-     * @throws \houseorm\mapper\DomainMapperException
-     * @throws \houseorm\EntityManagerException
-     */
-    public function testFindOneBy()
-    {
-        $entityManager = new EntityManager();
-        $config = new Config([
-            'driver' => Config::DRIVER_MYSQL,
-            'host'=> '127.0.0.1',
-            'database' => 'orm',
-            'user' => 'root',
-            'password' => ''
-        ]);
-        $entityManager->setDefaultConfig($config);
-        $entityManager->setMapper('User', new UserRepository(User::class));
-        /**
-         * @var UserRepositoryInterface $userRepository
-         */
-        $userRepository = $entityManager->getMapper('User');
-        $users = $userRepository->findBy([]);
-    }
-
-    /**
-     * @return void
+     * @param ConfigInterface $config
      * @throws \Doctrine\Common\Annotations\AnnotationException
      * @throws \houseorm\mapper\DomainMapperException
+     * @return EntityManagerInterface
      */
-    public function testFindByInMemory()
+    private function makeEntityManager(ConfigInterface $config)
     {
-        /**
-         * @var $userRepository UserRepositoryInterface
-         */
-        $userRepository = new UserRepository(
-            User::class,
-            new DataTableGateway(new InMemoryConnection())
-        );
-        $user1 = new User('taras');
-        $user2 = new User('taras');
-        $user3 = new User('bohdan');
-        $userRepository->save($user1);
-        $userRepository->save($user2);
-        $userRepository->save($user3);
-        $user = $userRepository->findBy(['name' => 'taras2']);
-    }
-
-    /**
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \houseorm\mapper\DomainMapperException
-     * @throws \houseorm\config\ConfigException
-     * @throws \houseorm\EntityManagerException
-     */
-    public function testRelations()
-    {
-        $entityManager = new EntityManager();
-        $config = new Config([
-            'driver' => Config::DRIVER_MEMORY
-        ]);
-        $entityManager->setDefaultConfig($config);
-        $connection = new InMemoryConnection();
-        $userRepository = new UserRepository(
-            User::class,
-            new DataTableGateway($connection)
-        );
+        $entityManager = new EntityManager($config);
+        $userRepository = new UserRepository(User::class);
+        $commentRepository = new CommentRepository(Comment::class);
+        $roleRepository = new RoleRepository(Role::class);
+        $roleUserRepository = new RoleUserRepository(RoleUser::class);
         $entityManager->setMapper('User', $userRepository);
-        $commentRepository = new CommentRepository(
-            Comment::class,
-            new DataTableGateway($connection)
-        );
         $entityManager->setMapper('Comment', $commentRepository);
+        $entityManager->setMapper('Role', $roleRepository);
+        $entityManager->setMapper('RoleUser', $roleUserRepository);
+        return $entityManager;
+    }
+
+    /**
+     * @param EntityManagerInterface $entityManager
+     */
+    protected function testMapper(EntityManagerInterface $entityManager)
+    {
+        /**
+         * @var UserRepositoryInterface $userRepository
+         */
         $userRepository = $entityManager->getMapper('User');
+        /**
+         * @var CommentRepositoryInterface $commentRepository
+         */
         $commentRepository = $entityManager->getMapper('Comment');
+        /**
+         * @var RoleRepositoryInterface $roleRepository
+         */
+        $roleRepository = $entityManager->getMapper('Role');
+        /**
+         * @var RoleUserRepositoryInterface $roleUserRepository
+         */
+        $roleUserRepository = $entityManager->getMapper('RoleUser');
         $user1 = new User('Taras');
         $user2 = new User('Bohdan');
         $userRepository->save($user1);
         $userRepository->save($user2);
-        $comment1 = new Comment('taras comment', $user1->getId());
-        $comment11 = new Comment('taras comment 2', $user1->getId());
-        $comment2 = new Comment('bohdan coment', $user2->getId());
-        $commentRepository->save($comment1);
-        $commentRepository->save($comment11);
-        $commentRepository->save($comment2);
-        $user1Comments = $userRepository->findRelative($user1, 'Comment');
-        $user2Comments = $userRepository->findRelative($user2, 'Comment');
+        $this->assertNotNull($user1->getId());
+        $this->assertNotNull($user2->getId());
+        $user1New = $userRepository->find($user1->getId());
+        $this->assertEquals($user1->getId(), $user1->getId());
+        $this->assertEquals($user1->getName(), $user1New->getName());
         /**
-         * @var UserInterface $commentUser
+         * testing relations
          */
-        $commentUser = $commentRepository->findRelativeOne($comment1, 'User');
-        $commentUser->setName('Taras 2');
-        $commentRepository->saveRelative($commentUser, 'User');
-        $commentUser = $commentRepository->findRelativeOne($comment1, 'User');
+        $user1Comment1 = new Comment('Taras comment 1', $user1->getId());
+        $user1Comment2 = new Comment('Taras comment 2', $user1->getId());
+        $user2Comment1 = new Comment('Bodan comment 1', $user2->getId());
+        $commentRepository->save($user1Comment1);
+        $commentRepository->save($user1Comment2);
+        $commentRepository->save($user2Comment1);
+        $userRepository->saveRelative($user1Comment2, 'User');
+        $user1Comments = $userRepository->findRelative($user1, 'Comment');
+        $this->assertCount(2, $user1Comments);
+        $user1Comments = $userRepository->findRelativeBy($user1, 'Comment', ['content' => 'Taras comment 1']);
+        $this->assertCount(1, $user1Comments);
+        $user1Comments = $userRepository->findRelativeBy($user1, 'Comment', ['content' => 'Non existing content']);
+        $this->assertCount(0, $user1Comments);
+        /**
+         * testing a via relations
+         */
+        $role1 = new Role('Admin');
+        $roleRepository->save($role1);
+        $role2 = new Role('Editor');
+        $roleRepository->save($role2);
+        $userRole = new RoleUser($user1->getId(), $role1->getId());
+        $roleUserRepository->save($userRole);
+        $userRole = new RoleUser($user1->getId(), $role2->getId());
+        $roleUserRepository->save($userRole);
+        $userRole = new RoleUser($user2->getId(), $role1->getId());
+        $roleUserRepository->save($userRole);
+        $user1Roles = $userRepository->findRelative($user1, 'Role');
+        $this->assertCount(2, $user1Roles);
+        $user2Roles = $userRepository->findRelative($user2, 'Role');
+        $this->assertCount(1, $user2Roles);
+        $user1Roles = $userRepository->findRelativeBy($user1, 'Role', ['title' => 'Editor']);
+        $this->assertCount(1, $user1Roles);
+        $user2Role = $userRepository->findRelativeOneBy($user2, 'Role', ['title' => 'Editor']);
+        $this->assertNull($user2Role);
     }
 
 }

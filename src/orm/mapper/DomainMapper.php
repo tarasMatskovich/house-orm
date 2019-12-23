@@ -15,14 +15,16 @@ use Doctrine\Common\Annotations\Reader;
 use houseorm\EntityManagerInterface;
 use houseorm\gateway\builder\QueryBuilder;
 use houseorm\gateway\builder\QueryBuilderInterface;
+use houseorm\gateway\connection\factory\ConnectionFactory;
+use houseorm\gateway\connection\factory\ConnectionFactoryInterface;
 use houseorm\gateway\connection\InMemoryConnection;
-use houseorm\gateway\connection\PdoConnection;
 use houseorm\gateway\datatable\DataTableGateway;
 use houseorm\gateway\datatable\request\QueryRequest;
 use houseorm\gateway\GatewayInterface;
 use houseorm\mapper\annotations\Field;
 use houseorm\mapper\annotations\Gateway;
 use houseorm\mapper\annotations\Relation;
+use houseorm\mapper\annotations\ViaRelation;
 use houseorm\mapper\collection\DomainCollection;
 use houseorm\mapper\collection\DomainCollectionInterface;
 use houseorm\mapper\object\DomainObjectInterface;
@@ -80,6 +82,11 @@ class DomainMapper implements DomainMapperInterface
     private $entityManager;
 
     /**
+     * @var ConnectionFactoryInterface
+     */
+    private $connectionFactory;
+
+    /**
      * DomainMapper constructor.
      * @param string $entity
      * @param GatewayInterface|null $gateway
@@ -97,11 +104,12 @@ class DomainMapper implements DomainMapperInterface
     {
         $this->entity = $entity;
         $this->reader = ($reader) ? $reader : $this->getReader();
-        $this->gateway = ($gateway) ? $gateway : $this->getGateway();
+        $this->gateway = $gateway;
         $this->primaryKey = $primaryKey;
         $this->mapping = $this->getMapping();
         $this->builder = $this->getBuilder();
         $this->setTarget();
+        $this->connectionFactory = new ConnectionFactory();
     }
 
     /**
@@ -152,12 +160,13 @@ class DomainMapper implements DomainMapperInterface
             }
             $gateway = $gatewayParts[0] ?? null;
             $gatewayObj = null;
+            $driver = $this->entityManager->getDefaultConfig()->getDriver();
             switch ($gateway) {
                 case 'datatable':
-                    $gatewayObj = new DataTableGateway(new PdoConnection());
+                    $gatewayObj = new DataTableGateway($this->connectionFactory->getConnection($driver));
                     break;
                 default:
-                    $gatewayObj = new DataTableGateway(new PdoConnection());
+                    $gatewayObj = new DataTableGateway($this->connectionFactory->getConnection($driver));
                     break;
             }
             return $gatewayObj;
@@ -174,6 +183,7 @@ class DomainMapper implements DomainMapperInterface
     {
         $loader = require '../../../vendor/autoload.php';
         AnnotationRegistry::registerLoader(array($loader, "loadClass"));
+        AnnotationRegistry::registerAutoloadNamespace('houseorm\mapper\annotations');
         return new AnnotationReader();
     }
 
@@ -185,6 +195,31 @@ class DomainMapper implements DomainMapperInterface
     {
         try {
             $reflectionClass = new \ReflectionClass($this->entity);
+            $viaAnnotations = [];
+            $classAnnotations = $this->reader->getClassAnnotations($reflectionClass);
+            foreach ($classAnnotations as $classAnnotation) {
+                if (get_class($classAnnotation) === ViaRelation::class) {
+                    $viaAnnotations[] = $classAnnotation;
+                }
+            }
+            foreach ($viaAnnotations as $viaAnnotation) {
+                $entity = $viaAnnotation->entity;
+                $via = $viaAnnotation->via;
+                $firstLocalKey = $viaAnnotation->firstLocalKey;
+                $firstForeignKey = $viaAnnotation->firstForeignKey;
+                $secondLocalKey = $viaAnnotation->secondLocalKey;
+                $secondForeignKey = $viaAnnotation->secondForeignKey;
+                if ($entity && $via && $firstLocalKey && $firstForeignKey && $secondForeignKey && $secondLocalKey) {
+                    $this->relations[$entity] = [
+                        'type' => 'via',
+                        'via' => $via,
+                        'firstLocalKey' => $firstLocalKey,
+                        'firstForeignKey' => $firstForeignKey,
+                        'secondLocalKey' => $secondLocalKey,
+                        'secondForeignKey' => $secondForeignKey
+                    ];
+                }
+            }
             $privateProperties = $reflectionClass->getProperties(\ReflectionProperty::IS_PRIVATE);
             $mapping = [];
             foreach ($privateProperties as $privateProperty) {
@@ -358,6 +393,30 @@ class DomainMapper implements DomainMapperInterface
             if ($mapper) {
                 $type = $relation['type'] ?? null;
                 switch ($type) {
+                    case 'via':
+                        $viaEntity = $relation['via'] ?? null;
+                        $firstLocalKey = $relation['firstLocalKey'] ?? null;
+                        $firstForeignKey = $relation['firstForeignKey'] ?? null;
+                        $secondLocalKey = $relation['secondLocalKey'] ?? null;
+                        $secondForeignKey = $relation['secondForeignKey'] ?? null;
+                        $result = new DomainCollection();
+                        if ($viaEntity && $firstForeignKey && $firstLocalKey && $secondForeignKey && $secondLocalKey) {
+                            $viaMapper = $this->entityManager->getMapper($viaEntity);
+                            if ($viaEntity) {
+                                $viaLocalKeyValue = $this->retrieveLocalKeyValue($entity, $firstLocalKey);
+                                $viaEntities = $viaMapper->findBy([$firstForeignKey => $viaLocalKeyValue])->toArray();
+                                // TODO: Maybe change on batch query (IN ...)
+                                foreach ($viaEntities as $viaEntity) {
+                                    $foreignKeyValue = $this->retrieveLocalKeyValue($viaEntity, $secondForeignKey);
+                                    $resultEntity = $mapper->findOneBy([$secondLocalKey => $foreignKeyValue]);
+                                    if ($resultEntity) {
+                                        $result->add($resultEntity);
+                                    }
+                                }
+                            }
+                        }
+                        return $result;
+                        break;
                     case 'simple':
                     default:
                         $key = $relation['key'] ?? null;
@@ -366,7 +425,7 @@ class DomainMapper implements DomainMapperInterface
                             $relativeEntityMapping = $mapper->getMapping();
                             $mappedKey = $relativeEntityMapping[$key] ?? null;
                             if ($mappedKey) {
-                                $value = $this->retriveLocalKeyValue($entity, $localKey);
+                                $value = $this->retrieveLocalKeyValue($entity, $localKey);
                                 return $mapper->findBy([$key => $value]);
                             }
                         }
@@ -390,6 +449,24 @@ class DomainMapper implements DomainMapperInterface
             if ($mapper) {
                 $type = $relation['type'] ?? null;
                 switch ($type) {
+                    case 'via':
+                        $viaEntity = $relation['via'] ?? null;
+                        $firstLocalKey = $relation['firstLocalKey'] ?? null;
+                        $firstForeignKey = $relation['firstForeignKey'] ?? null;
+                        $secondLocalKey = $relation['secondLocalKey'] ?? null;
+                        $secondForeignKey = $relation['secondForeignKey'] ?? null;
+                        $result = null;
+                        if ($viaEntity && $firstForeignKey && $firstLocalKey && $secondForeignKey && $secondLocalKey) {
+                            $viaMapper = $this->entityManager->getMapper($viaEntity);
+                            if ($viaEntity) {
+                                $viaLocalKeyValue = $this->retrieveLocalKeyValue($entity, $firstLocalKey);
+                                $viaEntity = $viaMapper->findOneBy([$firstForeignKey => $viaLocalKeyValue]);
+                                $foreignKeyValue = $this->retrieveLocalKeyValue($viaEntity, $secondForeignKey);
+                                $result = $mapper->findOneBy([$secondLocalKey => $foreignKeyValue]);
+                            }
+                        }
+                        return $result;
+                        break;
                     case 'simple':
                     default:
                         $key = $relation['key'] ?? null;
@@ -398,8 +475,117 @@ class DomainMapper implements DomainMapperInterface
                             $relativeEntityMapping = $mapper->getMapping();
                             $mappedKey = $relativeEntityMapping[$key] ?? null;
                             if ($mappedKey) {
-                                $value = $this->retriveLocalKeyValue($entity, $localKey);
+                                $value = $this->retrieveLocalKeyValue($entity, $localKey);
                                 return $mapper->findOneBy([$key => $value]);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param $entity
+     * @param $relativeEntityName
+     * @param $criteria
+     * @return DomainCollectionInterface
+     */
+    public function findRelativeBy($entity, $relativeEntityName, $criteria)
+    {
+        if (isset($this->relations[$relativeEntityName])) {
+            $relation = $this->relations[$relativeEntityName];
+            $mapper = $this->entityManager->getMapper($relativeEntityName);
+            if ($mapper) {
+                $type = $relation['type'] ?? null;
+                switch ($type) {
+                    case 'via':
+                        $viaEntity = $relation['via'] ?? null;
+                        $firstLocalKey = $relation['firstLocalKey'] ?? null;
+                        $firstForeignKey = $relation['firstForeignKey'] ?? null;
+                        $secondLocalKey = $relation['secondLocalKey'] ?? null;
+                        $secondForeignKey = $relation['secondForeignKey'] ?? null;
+                        $result = new DomainCollection();
+                        if ($viaEntity && $firstForeignKey && $firstLocalKey && $secondForeignKey && $secondLocalKey) {
+                            $viaMapper = $this->entityManager->getMapper($viaEntity);
+                            if ($viaEntity) {
+                                $viaLocalKeyValue = $this->retrieveLocalKeyValue($entity, $firstLocalKey);
+                                $viaEntities = $viaMapper->findBy([$firstForeignKey => $viaLocalKeyValue])->toArray();
+                                foreach ($viaEntities as $viaEntity) {
+                                    $foreignKeyValue = $this->retrieveLocalKeyValue($viaEntity, $secondForeignKey);
+                                    $resultEntity = $mapper->findOneBy(array_merge($criteria, [$secondLocalKey => $foreignKeyValue]));
+                                    if ($resultEntity) {
+                                        $result->add($resultEntity);
+                                    }
+                                }
+                            }
+                        }
+                        return $result;
+                        break;
+                    case 'simple':
+                    default:
+                        $key = $relation['key'] ?? null;
+                        $localKey = $relation['localKey'] ?? null;
+                        if ($key && $localKey) {
+                            $relativeEntityMapping = $mapper->getMapping();
+                            $mappedKey = $relativeEntityMapping[$key] ?? null;
+                            if ($mappedKey) {
+                                $value = $this->retrieveLocalKeyValue($entity, $localKey);
+                                $criteria = array_merge([$key => $value], $criteria);
+                                return $mapper->findBy($criteria);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        return new DomainCollection();
+    }
+
+    /**
+     * @param $entity
+     * @param $relativeEntityName
+     * @param $criteria
+     * @return DomainObjectInterface|null
+     */
+    public function findRelativeOneBy($entity, $relativeEntityName, $criteria)
+    {
+        if (isset($this->relations[$relativeEntityName])) {
+            $relation = $this->relations[$relativeEntityName];
+            $mapper = $this->entityManager->getMapper($relativeEntityName);
+            if ($mapper) {
+                $type = $relation['type'] ?? null;
+                switch ($type) {
+                    case 'via':
+                        $viaEntity = $relation['via'] ?? null;
+                        $firstLocalKey = $relation['firstLocalKey'] ?? null;
+                        $firstForeignKey = $relation['firstForeignKey'] ?? null;
+                        $secondLocalKey = $relation['secondLocalKey'] ?? null;
+                        $secondForeignKey = $relation['secondForeignKey'] ?? null;
+                        $result = null;
+                        if ($viaEntity && $firstForeignKey && $firstLocalKey && $secondForeignKey && $secondLocalKey) {
+                            $viaMapper = $this->entityManager->getMapper($viaEntity);
+                            if ($viaEntity) {
+                                $viaLocalKeyValue = $this->retrieveLocalKeyValue($entity, $firstLocalKey);
+                                $viaEntity = $viaMapper->findOneBy([$firstForeignKey => $viaLocalKeyValue]);
+                                $foreignKeyValue = $this->retrieveLocalKeyValue($viaEntity, $secondForeignKey);
+                                $result = $mapper->findOneBy(array_merge($criteria, [$secondLocalKey => $foreignKeyValue]));
+                            }
+                        }
+                        return $result;
+                        break;
+                    case 'simple':
+                    default:
+                        $key = $relation['key'] ?? null;
+                        $localKey = $relation['localKey'] ?? null;
+                        if ($key) {
+                            $relativeEntityMapping = $mapper->getMapping();
+                            $mappedKey = $relativeEntityMapping[$key] ?? null;
+                            if ($mappedKey) {
+                                $value = $this->retrieveLocalKeyValue($entity, $localKey);
+                                $criteria = array_merge([$key => $value], $criteria);
+                                return $mapper->findOneBy($criteria);
                             }
                         }
                         break;
@@ -524,7 +710,7 @@ class DomainMapper implements DomainMapperInterface
      * @param $localKey
      * @return mixed
      */
-    private function retriveLocalKeyValue($entity, $localKey)
+    private function retrieveLocalKeyValue($entity, $localKey)
     {
         try {
             $entityReflectionClass = new \ReflectionClass($entity);
@@ -571,6 +757,7 @@ class DomainMapper implements DomainMapperInterface
     public function setEntityManager(EntityManagerInterface $em)
     {
         $this->entityManager = $em;
+        $this->gateway = $this->getGateway();
         if (!$this->gateway->getConnection()->getConfig()) {
             $this->gateway->setConfigToConnection($em->getDefaultConfig());
         }
