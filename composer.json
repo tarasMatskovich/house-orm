@@ -1,6 +1,6 @@
 {
   "name": "house-orm",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "PHP ORM library",
   "minimum-stability": "dev",
   "license": "proprietary",
