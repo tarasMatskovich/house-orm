@@ -20,7 +20,7 @@ class EventManager implements EventManagerInterface
 {
 
     /**
-     * @var LoggerInterface
+     * @var LoggerInterface|null
      */
     private $logger;
 
@@ -31,9 +31,9 @@ class EventManager implements EventManagerInterface
 
     /**
      * EventManager constructor.
-     * @param LoggerInterface $logger
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(?LoggerInterface $logger = null)
     {
         $this->logger = $logger;
     }
@@ -46,7 +46,9 @@ class EventManager implements EventManagerInterface
     public function listen(string $event, callable $callback)
     {
         $this->listeners[$event] = $callback;
-        $this->logger->debug('Start listening event: ' . $event);
+        if ($this->logger) {
+            $this->logger->debug('Start listening event: ' . $event);
+        }
     }
 
     /**
@@ -58,7 +60,9 @@ class EventManager implements EventManagerInterface
     {
         if (isset($this->listeners[$eventType])) {
             $this->listeners[$eventType]($event);
-            $this->logger->debug('Dispathed event: ' . $eventType);
+            if ($this->logger) {
+                $this->logger->debug('Dispathed event: ' . $eventType);
+            }
         }
     }
 }
