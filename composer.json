@@ -1,6 +1,6 @@
 {
   "name": "tarasmatskovich/house-orm",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "PHP ORM library",
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -18,12 +18,18 @@
     "php": "^7.0",
     "ext-json": "*",
     "ext-pdo": "*",
-    "doctrine/annotations": "^1.8"
+    "tarasmatskovich/annotations": "^1.9"
   },
   "autoload": {
     "psr-4": {
       "houseorm\\": "src/orm",
       "tests\\": "tests/"
     }
-  }
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/tarasMatskovich/annotations.git"
+    }
+  ]
 }

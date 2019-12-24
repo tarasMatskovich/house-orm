@@ -10,7 +10,6 @@ namespace houseorm\mapper;
 
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader;
 use houseorm\EntityManagerInterface;
 use houseorm\gateway\builder\QueryBuilder;
@@ -181,9 +180,6 @@ class DomainMapper implements DomainMapperInterface
      */
     private function getReader()
     {
-        $loader = require '../../../vendor/autoload.php';
-        AnnotationRegistry::registerLoader(array($loader, "loadClass"));
-        AnnotationRegistry::registerAutoloadNamespace('houseorm\mapper\annotations');
         return new AnnotationReader();
     }
 
@@ -193,6 +189,9 @@ class DomainMapper implements DomainMapperInterface
      */
     public function getMapping()
     {
+        if ($this->mapping) {
+            return $this->mapping;
+        }
         try {
             $reflectionClass = new \ReflectionClass($this->entity);
             $viaAnnotations = [];
@@ -272,6 +271,7 @@ class DomainMapper implements DomainMapperInterface
                 throw new DomainMapperException($this->entity);
             }
         }
+        return null;
     }
 
     /**
