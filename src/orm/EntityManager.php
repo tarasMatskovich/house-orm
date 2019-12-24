@@ -9,6 +9,7 @@
 namespace houseorm;
 
 
+use houseorm\Cache\CacheInterface;
 use houseorm\config\ConfigInterface;
 use houseorm\EventManager\EventManagerInterface;
 use houseorm\EventManager\Events\Create\EntityCreated;
@@ -44,11 +45,17 @@ class EntityManager implements EntityManagerInterface
     private $eventManager;
 
     /**
+     * @var CacheInterface|null
+     */
+    private $cache;
+
+    /**
      * EntityManager constructor.
      * @param ConfigInterface $config
      * @param EventManagerInterface|null $eventManager
+     * @param CacheInterface|null $cache
      */
-    public function __construct(ConfigInterface $config, ?EventManagerInterface $eventManager = null)
+    public function __construct(ConfigInterface $config, ?EventManagerInterface $eventManager = null, ?CacheInterface $cache= null)
     {
         $this->config = $config;
         $this->eventManager = $eventManager;
@@ -58,6 +65,7 @@ class EntityManager implements EntityManagerInterface
             $this->eventManager->listen(EntityDeleted::EVENT_TYPE, new DeleteEntityListener());
             $this->eventManager->listen(EntityFound::EVENT_TYPE, new FindEntityListener());
         }
+        $this->cache = $cache;
     }
 
     /**
@@ -102,5 +110,13 @@ class EntityManager implements EntityManagerInterface
     public function getEventManager()
     {
         return $this->eventManager;
+    }
+
+    /**
+     * @return CacheInterface|null
+     */
+    public function getCache()
+    {
+        return $this->cache;
     }
 }

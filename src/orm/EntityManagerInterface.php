@@ -8,6 +8,7 @@
 
 namespace houseorm;
 
+use houseorm\Cache\CacheInterface;
 use houseorm\config\ConfigInterface;
 use houseorm\EventManager\EventManagerInterface;
 use houseorm\mapper\DomainMapperInterface;
@@ -47,5 +48,10 @@ interface EntityManagerInterface
      * @return EventManagerInterface|null
      */
     public function getEventManager();
+
+    /**
+     * @return CacheInterface
+     */
+    public function getCache();
 
 }

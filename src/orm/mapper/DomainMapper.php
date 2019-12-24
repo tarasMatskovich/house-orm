@@ -334,6 +334,13 @@ class DomainMapper implements DomainMapperInterface
     public function find($id)
     {
         $pk = $this->primaryKey;
+        $cache = $this->entityManager->getCache();
+        if ($cache) {
+            $result = $cache->get($id);
+            if ($result) {
+                return $result;
+            }
+        }
         $query = $this->builder->getSelectQuery();
         $query->select(['*']);
         $query->from([$this->target]);
