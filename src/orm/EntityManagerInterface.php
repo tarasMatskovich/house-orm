@@ -9,6 +9,7 @@
 namespace houseorm;
 
 use houseorm\config\ConfigInterface;
+use houseorm\EventManager\EventManagerInterface;
 use houseorm\mapper\DomainMapperInterface;
 
 /**
@@ -41,5 +42,10 @@ interface EntityManagerInterface
      * @return ConfigInterface
      */
     public function getDefaultConfig();
+
+    /**
+     * @return EventManagerInterface|null
+     */
+    public function getEventManager();
 
 }

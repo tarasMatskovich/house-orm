@@ -12,6 +12,12 @@ namespace houseorm\mapper;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
 use houseorm\EntityManagerInterface;
+use houseorm\EventManager\EventManager;
+use houseorm\EventManager\EventManagerInterface;
+use houseorm\EventManager\Events\Create\EntityCreated;
+use houseorm\EventManager\Events\Delete\EntityDeleted;
+use houseorm\EventManager\Events\Find\EntityFound;
+use houseorm\EventManager\Events\Update\EntityUpdated;
 use houseorm\gateway\builder\QueryBuilder;
 use houseorm\gateway\builder\QueryBuilderInterface;
 use houseorm\gateway\connection\factory\ConnectionFactory;
@@ -39,6 +45,16 @@ class DomainMapper implements DomainMapperInterface
      * @var string
      */
     protected $entity;
+
+    /**
+     * @var array
+     */
+    protected $listeners;
+
+    /**
+     * @var EventManagerInterface
+     */
+    protected $eventManager;
 
     /**
      * @var GatewayInterface
@@ -88,6 +104,7 @@ class DomainMapper implements DomainMapperInterface
     /**
      * DomainMapper constructor.
      * @param string $entity
+     * @param array $listeners
      * @param GatewayInterface|null $gateway
      * @param Reader|null $reader
      * @param string $primaryKey
@@ -96,12 +113,14 @@ class DomainMapper implements DomainMapperInterface
      */
     public function __construct(
         string $entity,
+        array $listeners = [],
         ?GatewayInterface $gateway = null,
         Reader $reader = null,
         string $primaryKey = 'id'
     )
     {
         $this->entity = $entity;
+        $this->listeners = $listeners;
         $this->reader = ($reader) ? $reader : $this->getReader();
         $this->gateway = $gateway;
         $this->primaryKey = $primaryKey;
@@ -109,6 +128,10 @@ class DomainMapper implements DomainMapperInterface
         $this->builder = $this->getBuilder();
         $this->setTarget();
         $this->connectionFactory = new ConnectionFactory();
+        $this->eventManager = new EventManager();
+        foreach ($this->listeners as $eventType => $listener) {
+            $this->eventManager->listen($eventType, $listener);
+        }
     }
 
     /**
@@ -265,6 +288,14 @@ class DomainMapper implements DomainMapperInterface
                         $entityProperty->setValue($entityObject, $result[$this->mapping[$propertyName]]);
                         $entityProperty->setAccessible(false);
                     }
+                }
+                $eventManager = $this->entityManager->getEventManager();
+                if ($eventManager) {
+                    $eventManager->dispatch(EntityFound::EVENT_TYPE, new EntityFound($entityObject));
+                }
+                $mapperEventManager = $this->eventManager;
+                if ($mapperEventManager) {
+                    $mapperEventManager->dispatch(EntityFound::EVENT_TYPE, new EntityFound($entityObject));
                 }
                 return $entityObject;
             } catch (\ReflectionException $e) {
@@ -607,11 +638,14 @@ class DomainMapper implements DomainMapperInterface
             return;
         }
         $lastInsertId = null;
+        $eventType = null;
         try {
             if ($this->isEntityExists($entity)) {
                 $lastInsertId = $this->doUpdate($fields);
+                $eventType = EntityUpdated::EVENT_TYPE;
             } else {
                 $lastInsertId = $this->doSave($fields);
+                $eventType = EntityCreated::EVENT_TYPE;
             }
         } catch (\ReflectionException $e) {
             return;
@@ -619,6 +653,23 @@ class DomainMapper implements DomainMapperInterface
         if ($lastInsertId) {
             $refreshedEntity = $this->find($lastInsertId);
             $entity = $refreshedEntity;
+            if ($eventType && $this->entityManager->getEventManager()) {
+                if (EntityCreated::EVENT_TYPE === $eventType) {
+                    $this->entityManager->getEventManager()->dispatch($eventType, new EntityCreated($entity));
+                }
+                if (EntityUpdated::EVENT_TYPE === $eventType) {
+                    $this->entityManager->getEventManager()->dispatch($eventType, new EntityUpdated($entity));
+                }
+            }
+            $mapperEventManager = $this->eventManager;
+            if ($mapperEventManager) {
+                if (EntityCreated::EVENT_TYPE === $eventType) {
+                    $mapperEventManager->dispatch($eventType, new EntityCreated($entity));
+                }
+                if (EntityUpdated::EVENT_TYPE === $eventType) {
+                    $mapperEventManager->dispatch($eventType, new EntityUpdated($entity));
+                }
+            }
         }
     }
 
@@ -747,7 +798,17 @@ class DomainMapper implements DomainMapperInterface
             $query->where([
                 $this->mapping[$this->primaryKey] => $pk
             ]);
-            $this->gateway->execute(new QueryRequest($query, $this->primaryKey));
+            $res = $this->gateway->execute(new QueryRequest($query, $this->primaryKey));
+            if (isset($res['result']) && $res['result']) {
+                $eventManager = $this->entityManager->getEventManager();
+                if ($eventManager) {
+                    $eventManager->dispatch(EntityDeleted::EVENT_TYPE, new EntityDeleted($entity));
+                }
+                $mapperEventManager = $this->eventManager;
+                if ($mapperEventManager) {
+                    $mapperEventManager->dispatch(EntityDeleted::EVENT_TYPE, new EntityDeleted($entity));
+                }
+            }
         }
     }
 
