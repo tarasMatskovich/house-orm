@@ -2,17 +2,17 @@
 /**
  * Created by PhpStorm.
  * User: t.matskovich
- * Date: 24.12.2019
- * Time: 18:26
+ * Date: 26.12.2019
+ * Time: 18:04
  */
 
-namespace houseorm\Cache\Request\Find;
+namespace houseorm\Cache\Request\Reset;
 
 /**
- * Class CacheRequest
- * @package houseorm\Cache\Request
+ * Class ResetCacheRequest
+ * @package houseorm\Cache\Request\Reset
  */
-class FindCacheRequest implements FindCacheRequestInterface
+class ResetCacheRequest implements ResetCacheRequestInterface
 {
 
     /**
@@ -21,12 +21,12 @@ class FindCacheRequest implements FindCacheRequestInterface
     private $target;
 
     /**
-     * @var mixed|null
+     * @var mixed
      */
     private $pk;
 
     /**
-     * FindCacheRequest constructor.
+     * ResetCacheRequest constructor.
      * @param $target
      * @param $pk
      */
@@ -45,7 +45,7 @@ class FindCacheRequest implements FindCacheRequestInterface
     }
 
     /**
-     * @return mixed|null
+     * @return mixed
      */
     public function getPrimaryKey()
     {

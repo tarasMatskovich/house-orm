@@ -21,8 +21,8 @@ interface FindCacheRequestInterface
     public function getTarget();
 
     /**
-     * @return array
+     * @return mixed|null
      */
-    public function getCriteria();
+    public function getPrimaryKey();
 
 }

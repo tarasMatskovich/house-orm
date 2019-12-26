@@ -76,6 +76,14 @@ class DomainCollection implements DomainCollectionInterface
     }
 
     /**
+     * @return mixed|null
+     */
+    public function first()
+    {
+        return $this->get(array_key_first($this->registry));
+    }
+
+    /**
      * Retrieve an external iterator
      * @link https://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return Traversable An instance of an object implementing <b>Iterator</b> or

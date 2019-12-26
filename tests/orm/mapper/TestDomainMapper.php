@@ -8,6 +8,8 @@
 
 namespace tests\orm\mapper;
 
+use houseorm\Cache\Cache;
+use houseorm\Cache\Config\CacheConfig;
 use houseorm\config\Config;
 use houseorm\config\ConfigInterface;
 use houseorm\EntityManager;
@@ -161,6 +163,31 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $user1Roles);
         $user2Role = $userRepository->findRelativeOneBy($user2, 'Role', ['title' => 'Editor']);
         $this->assertNull($user2Role);
+    }
+
+    /**
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\config\ConfigException
+     * @throws \houseorm\mapper\DomainMapperException
+     */
+    public function testCachedDomainMapper()
+    {
+        $config = new Config($this->memoryConfig);
+        $config->setCacheConfig(new CacheConfig(CacheConfig::MEMORY_DRIVER));
+        $entityManager = new EntityManager($config);
+        $userRepository = new UserRepository(User::class);
+        $entityManager->setMapper('User', $userRepository);
+        /**
+         * @var UserRepositoryInterface $userRepository
+         */
+        $userRepository = $entityManager->getMapper('User');
+        $user = new User('Taras');
+        $userRepository->save($user);
+        $foundedUser = $userRepository->find($user->getId());
+        $cachedUser = $userRepository->find($user->getId());
+        $this->assertEquals($foundedUser->getName(), $cachedUser->getName());
+        $foundedUser->setName('Bohdan');
+        $this->assertNotEquals($foundedUser->getName(), $cachedUser->getName());
     }
 
 }

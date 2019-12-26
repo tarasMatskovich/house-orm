@@ -8,6 +8,8 @@
 
 namespace houseorm\EventManager\Listeners;
 
+use houseorm\EventManager\Events\EventInterface;
+
 /**
  * Interface ListenerInterface
  * @package houseorm\EventManager\Listeners
@@ -16,9 +18,9 @@ interface ListenerInterface
 {
 
     /**
-     * @param $payload
+     * @param EventInterface $event
      * @return void
      */
-    public function __invoke($payload);
+    public function __invoke(EventInterface $event);
 
 }

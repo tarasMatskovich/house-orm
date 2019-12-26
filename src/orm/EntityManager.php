@@ -9,8 +9,10 @@
 namespace houseorm;
 
 
+use houseorm\Cache\Cache;
 use houseorm\Cache\CacheInterface;
 use houseorm\config\ConfigInterface;
+use houseorm\EventManager\EventManager;
 use houseorm\EventManager\EventManagerInterface;
 use houseorm\EventManager\Events\Create\EntityCreated;
 use houseorm\EventManager\Events\Delete\EntityDeleted;
@@ -53,19 +55,23 @@ class EntityManager implements EntityManagerInterface
      * EntityManager constructor.
      * @param ConfigInterface $config
      * @param EventManagerInterface|null $eventManager
-     * @param CacheInterface|null $cache
      */
-    public function __construct(ConfigInterface $config, ?EventManagerInterface $eventManager = null, ?CacheInterface $cache= null)
+    public function __construct(ConfigInterface $config, ?EventManagerInterface $eventManager = null)
     {
         $this->config = $config;
         $this->eventManager = $eventManager;
-        if ($this->eventManager) {
-            $this->eventManager->listen(EntityCreated::EVENT_TYPE, new CreateEntityListener());
-            $this->eventManager->listen(EntityUpdated::EVENT_TYPE, new UpdateEntityListener());
-            $this->eventManager->listen(EntityDeleted::EVENT_TYPE, new DeleteEntityListener());
-            $this->eventManager->listen(EntityFound::EVENT_TYPE, new FindEntityListener());
+        if (!$this->eventManager) {
+            $this->eventManager = new EventManager();
         }
-        $this->cache = $cache;
+        $cacheConfig = $config->getCacheConfig();
+        if ($cacheConfig) {
+            $this->cache = new Cache($cacheConfig);
+        }
+        $this->eventManager->listen(EntityCreated::EVENT_TYPE, new CreateEntityListener());
+        $this->eventManager->listen(EntityUpdated::EVENT_TYPE, new UpdateEntityListener());
+        $this->eventManager->listen(EntityDeleted::EVENT_TYPE, new DeleteEntityListener());
+        $this->eventManager->listen(EntityFound::EVENT_TYPE, new FindEntityListener());
+
     }
 
     /**

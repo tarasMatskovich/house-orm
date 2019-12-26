@@ -9,6 +9,8 @@
 namespace houseorm\Cache;
 
 use houseorm\Cache\Request\Find\FindCacheRequestInterface;
+use houseorm\Cache\Request\Reset\ResetCacheRequestInterface;
+use houseorm\Cache\Request\Set\SetCacheRequestInterface;
 
 /**
  * Interface CacheInterface
@@ -24,10 +26,15 @@ interface CacheInterface
     public function get(FindCacheRequestInterface $request);
 
     /**
-     * @param $key
-     * @param $value
+     * @param SetCacheRequestInterface $request
      * @return void
      */
-    public function set($key, $value);
+    public function set(SetCacheRequestInterface $request);
+
+    /**
+     * @param ResetCacheRequestInterface $request
+     * @return void
+     */
+    public function reset(ResetCacheRequestInterface $request);
 
 }

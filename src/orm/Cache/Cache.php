@@ -9,11 +9,13 @@
 namespace houseorm\Cache;
 
 
+use houseorm\Cache\Config\CacheConfig;
+use houseorm\Cache\Config\CacheConfigInterface;
 use houseorm\Cache\Drivers\CacheDriverInterface;
 use houseorm\Cache\Drivers\MemoryDriver\MemoryCacheDriver;
 use houseorm\Cache\Request\Find\FindCacheRequestInterface;
-use houseorm\config\ConfigInterface;
-use houseorm\mapper\collection\DomainCollection;
+use houseorm\Cache\Request\Reset\ResetCacheRequestInterface;
+use houseorm\Cache\Request\Set\SetCacheRequestInterface;
 
 /**
  * Class Cache
@@ -29,11 +31,15 @@ class Cache implements CacheInterface
 
     /**
      * Cache constructor.
-     * @param ConfigInterface $config
+     * @param CacheConfigInterface $config
      */
-    public function __construct(ConfigInterface $config)
+    public function __construct(CacheConfigInterface $config)
     {
-        $this->driver = new MemoryCacheDriver($config);
+        switch ($config->getDriver()) {
+            case CacheConfig::MEMORY_DRIVER:
+            default:
+                $this->driver = new MemoryCacheDriver($config);
+        }
     }
 
     /**
@@ -46,12 +52,20 @@ class Cache implements CacheInterface
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param SetCacheRequestInterface $request
      * @return void
      */
-    public function set($key, $value)
+    public function set(SetCacheRequestInterface $request)
     {
-        // TODO: Implement set() method.
+        $this->driver->set($request);
+    }
+
+    /**
+     * @param ResetCacheRequestInterface $request
+     * @return void
+     */
+    public function reset(ResetCacheRequestInterface $request)
+    {
+        $this->driver->reset($request);
     }
 }

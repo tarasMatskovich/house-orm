@@ -248,7 +248,7 @@ class InMemoryConnection implements ConnectionInterface
      */
     public function getConfig()
     {
-        return null;
+        return $this->config;
     }
 
     /**
@@ -256,6 +256,6 @@ class InMemoryConnection implements ConnectionInterface
      */
     public function setConfig(ConfigInterface $config)
     {
-        return;
+        $this->config = $config;
     }
 }

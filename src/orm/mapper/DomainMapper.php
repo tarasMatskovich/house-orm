@@ -11,6 +11,9 @@ namespace houseorm\mapper;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
+use houseorm\Cache\Request\Find\FindCacheRequest;
+use houseorm\Cache\Request\Set\SetCacheRequest;
+use houseorm\Cache\Request\Set\SetCacheRequestInterface;
 use houseorm\EntityManagerInterface;
 use houseorm\EventManager\EventManager;
 use houseorm\EventManager\EventManagerInterface;
@@ -336,9 +339,10 @@ class DomainMapper implements DomainMapperInterface
         $pk = $this->primaryKey;
         $cache = $this->entityManager->getCache();
         if ($cache) {
-            $result = $cache->get($id);
-            if ($result) {
-                return $result;
+            $result = $cache->get(new FindCacheRequest($this->target, $id));
+            if ($result && isset($result['entity'])) {
+                $clonedEntity = clone $result['entity'];
+                return $clonedEntity;
             }
         }
         $query = $this->builder->getSelectQuery();
@@ -350,7 +354,11 @@ class DomainMapper implements DomainMapperInterface
         $result = $this->gateway->execute($queryRequest);
         if (isset($result['result']) && !empty($result['result'])) {
             try {
-                return $this->doMap($this->fetchOne($result['result']));
+                $entity = $this->doMap($this->fetchOne($result['result']));
+                if ($cache) {
+                    $cache->set(new SetCacheRequest($this->target, $id, $entity));
+                }
+                return $entity;
             } catch (DomainMapperException $e) {
                 return null;
             }
@@ -665,7 +673,11 @@ class DomainMapper implements DomainMapperInterface
                     $this->entityManager->getEventManager()->dispatch($eventType, new EntityCreated($entity));
                 }
                 if (EntityUpdated::EVENT_TYPE === $eventType) {
-                    $this->entityManager->getEventManager()->dispatch($eventType, new EntityUpdated($entity));
+                    $payload = new \StdClass();
+                    $payload->entity = $entity;
+                    $payload->target = $this->target;
+                    $payload->pk = $lastInsertId;
+                    $this->entityManager->getEventManager()->dispatch($eventType, new EntityUpdated($payload));
                 }
             }
             $mapperEventManager = $this->eventManager;
