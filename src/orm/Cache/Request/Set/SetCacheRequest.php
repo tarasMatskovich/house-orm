@@ -31,16 +31,23 @@ class SetCacheRequest implements SetCacheRequestInterface
     private $entity;
 
     /**
+     * @var array
+     */
+    private $rawFields;
+
+    /**
      * SetCacheRequest constructor.
      * @param $target
      * @param $pk
      * @param $entity
+     * @param array $rawFields
      */
-    public function __construct($target, $pk, $entity)
+    public function __construct($target, $pk, $entity, array $rawFields = [])
     {
         $this->target = $target;
         $this->pk = $pk;
         $this->entity = $entity;
+        $this->rawFields = $rawFields;
     }
 
     /**
@@ -65,5 +72,13 @@ class SetCacheRequest implements SetCacheRequestInterface
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawFields()
+    {
+        return $this->rawFields;
     }
 }

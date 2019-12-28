@@ -13,6 +13,7 @@ use houseorm\Cache\Config\CacheConfig;
 use houseorm\Cache\Config\CacheConfigInterface;
 use houseorm\Cache\Drivers\CacheDriverInterface;
 use houseorm\Cache\Drivers\MemoryDriver\MemoryCacheDriver;
+use houseorm\Cache\Drivers\RedisDriver\RedisCacheDriver;
 use houseorm\Cache\Request\Find\FindCacheRequestInterface;
 use houseorm\Cache\Request\Reset\ResetCacheRequestInterface;
 use houseorm\Cache\Request\Set\SetCacheRequestInterface;
@@ -36,6 +37,9 @@ class Cache implements CacheInterface
     public function __construct(CacheConfigInterface $config)
     {
         switch ($config->getDriver()) {
+            case CacheConfig::REDIS_DRIVER:
+                $this->driver = new RedisCacheDriver($config);
+                break;
             case CacheConfig::MEMORY_DRIVER:
             default:
                 $this->driver = new MemoryCacheDriver($config);

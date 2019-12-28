@@ -22,6 +22,8 @@ use houseorm\EventManager\Listeners\Create\CreateEntityListener;
 use houseorm\EventManager\Listeners\Delete\DeleteEntityListener;
 use houseorm\EventManager\Listeners\Find\FindEntityListener;
 use houseorm\EventManager\Listeners\Update\UpdateEntityListener;
+use houseorm\gateway\connection\factory\ConnectionFactory;
+use houseorm\gateway\connection\factory\ConnectionFactoryInterface;
 use houseorm\mapper\DomainMapperInterface;
 
 /**
@@ -52,6 +54,11 @@ class EntityManager implements EntityManagerInterface
     private $cache;
 
     /**
+     * @var ConnectionFactoryInterface
+     */
+    private $connectionFactory;
+
+    /**
      * EntityManager constructor.
      * @param ConfigInterface $config
      * @param EventManagerInterface|null $eventManager
@@ -68,10 +75,10 @@ class EntityManager implements EntityManagerInterface
             $this->cache = new Cache($cacheConfig);
         }
         $this->eventManager->listen(EntityCreated::EVENT_TYPE, new CreateEntityListener());
-        $this->eventManager->listen(EntityUpdated::EVENT_TYPE, new UpdateEntityListener());
+        $this->eventManager->listen(EntityUpdated::EVENT_TYPE, new UpdateEntityListener($this->cache));
         $this->eventManager->listen(EntityDeleted::EVENT_TYPE, new DeleteEntityListener());
         $this->eventManager->listen(EntityFound::EVENT_TYPE, new FindEntityListener());
-
+        $this->connectionFactory = new ConnectionFactory();
     }
 
     /**
@@ -124,5 +131,13 @@ class EntityManager implements EntityManagerInterface
     public function getCache()
     {
         return $this->cache;
+    }
+
+    /**
+     * @return ConnectionFactoryInterface
+     */
+    public function getConnectionFactory()
+    {
+        return $this->connectionFactory;
     }
 }

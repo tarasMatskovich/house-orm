@@ -25,7 +25,7 @@ class MemoryCacheDriver implements CacheDriverInterface
 {
 
     /**
-     * @var ConfigInterface
+     * @var CacheConfigInterface
      */
     private $config;
 

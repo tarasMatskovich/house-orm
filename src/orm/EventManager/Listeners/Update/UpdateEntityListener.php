@@ -43,7 +43,7 @@ class UpdateEntityListener implements ListenerInterface
     {
         $entity = $event->getPayload();
         if ($this->cache) {
-            $this->cache->reset(new ResetCacheRequest($entity->taget, $entity->pk));
+            $this->cache->reset(new ResetCacheRequest($entity->target, $entity->pk));
         }
         echo 'Entity was updated' . "\r\n";
     }

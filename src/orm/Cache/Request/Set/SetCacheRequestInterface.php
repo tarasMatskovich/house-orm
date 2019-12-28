@@ -30,4 +30,9 @@ interface SetCacheRequestInterface
      */
     public function getEntity();
 
+    /**
+     * @return array
+     */
+    public function getRawFields();
+
 }

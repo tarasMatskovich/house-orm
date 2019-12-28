@@ -17,6 +17,8 @@ class CacheConfig implements CacheConfigInterface
 
     const MEMORY_DRIVER = 'memory';
 
+    const REDIS_DRIVER = 'redis';
+
     const DEFAULT_LIFETIME = 1;
 
     /**

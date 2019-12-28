@@ -11,6 +11,7 @@ namespace houseorm;
 use houseorm\Cache\CacheInterface;
 use houseorm\config\ConfigInterface;
 use houseorm\EventManager\EventManagerInterface;
+use houseorm\gateway\connection\factory\ConnectionFactoryInterface;
 use houseorm\mapper\DomainMapperInterface;
 
 /**
@@ -53,5 +54,10 @@ interface EntityManagerInterface
      * @return CacheInterface
      */
     public function getCache();
+
+    /**
+     * @return ConnectionFactoryInterface
+     */
+    public function getConnectionFactory();
 
 }

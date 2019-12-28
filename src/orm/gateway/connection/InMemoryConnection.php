@@ -207,7 +207,7 @@ class InMemoryConnection implements ConnectionInterface
             $key = null;
             if (isset($this->data[$target]) && isset($this->data[$target]['data'])) {
                 foreach ($this->data[$target]['data'] as $i => $row) {
-                    if (isset($row[$pk])) {
+                    if (isset($row[$pk]) && isset($fields[$pk]) && $row[$pk] == $fields[$pk]) {
                         $key = $i;
                         break;
                     }
