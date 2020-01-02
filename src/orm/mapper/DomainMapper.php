@@ -11,6 +11,9 @@ namespace houseorm\mapper;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
+use houseorm\Cache\Request\Find\FindCacheRequest;
+use houseorm\Cache\Request\Set\SetCacheRequest;
+use houseorm\Cache\Request\Set\SetCacheRequestInterface;
 use houseorm\EntityManagerInterface;
 use houseorm\EventManager\EventManager;
 use houseorm\EventManager\EventManagerInterface;
@@ -127,7 +130,6 @@ class DomainMapper implements DomainMapperInterface
         $this->mapping = $this->getMapping();
         $this->builder = $this->getBuilder();
         $this->setTarget();
-        $this->connectionFactory = new ConnectionFactory();
         $this->eventManager = new EventManager();
         foreach ($this->listeners as $eventType => $listener) {
             $this->eventManager->listen($eventType, $listener);
@@ -334,6 +336,22 @@ class DomainMapper implements DomainMapperInterface
     public function find($id)
     {
         $pk = $this->primaryKey;
+        $cache = $this->entityManager->getCache();
+        if ($cache) {
+            $result = $cache->get(new FindCacheRequest($this->target, $id));
+            if ($result) {
+                if (isset($result['entity'])) {
+                    $clonedEntity = clone $result['entity'];
+                    return $clonedEntity;
+                } elseif(\is_string($result)) {
+                    try {
+                        return $this->doMap(json_decode($result, true));
+                    } catch (DomainMapperException $e) {
+
+                    }
+                }
+            }
+        }
         $query = $this->builder->getSelectQuery();
         $query->select(['*']);
         $query->from([$this->target]);
@@ -343,7 +361,11 @@ class DomainMapper implements DomainMapperInterface
         $result = $this->gateway->execute($queryRequest);
         if (isset($result['result']) && !empty($result['result'])) {
             try {
-                return $this->doMap($this->fetchOne($result['result']));
+                $entity = $this->doMap($this->fetchOne($result['result']));
+                if ($cache) {
+                    $cache->set(new SetCacheRequest($this->target, $id, $entity, $this->fetchOne($result['result'])));
+                }
+                return $entity;
             } catch (DomainMapperException $e) {
                 return null;
             }
@@ -643,6 +665,11 @@ class DomainMapper implements DomainMapperInterface
             if ($this->isEntityExists($entity)) {
                 $lastInsertId = $this->doUpdate($fields);
                 $eventType = EntityUpdated::EVENT_TYPE;
+                $payload = new \StdClass();
+                $payload->entity = $entity;
+                $payload->target = $this->target;
+                $payload->pk = $lastInsertId;
+                $this->entityManager->getEventManager()->dispatch($eventType, new EntityUpdated($payload));
             } else {
                 $lastInsertId = $this->doSave($fields);
                 $eventType = EntityCreated::EVENT_TYPE;
@@ -656,9 +683,6 @@ class DomainMapper implements DomainMapperInterface
             if ($eventType && $this->entityManager->getEventManager()) {
                 if (EntityCreated::EVENT_TYPE === $eventType) {
                     $this->entityManager->getEventManager()->dispatch($eventType, new EntityCreated($entity));
-                }
-                if (EntityUpdated::EVENT_TYPE === $eventType) {
-                    $this->entityManager->getEventManager()->dispatch($eventType, new EntityUpdated($entity));
                 }
             }
             $mapperEventManager = $this->eventManager;
@@ -818,6 +842,7 @@ class DomainMapper implements DomainMapperInterface
     public function setEntityManager(EntityManagerInterface $em)
     {
         $this->entityManager = $em;
+        $this->connectionFactory = $this->entityManager->getConnectionFactory();
         $this->gateway = $this->getGateway();
         if (!$this->gateway->getConnection()->getConfig()) {
             $this->gateway->setConfigToConnection($em->getDefaultConfig());

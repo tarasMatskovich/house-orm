@@ -8,6 +8,8 @@
 
 namespace houseorm\config;
 
+use houseorm\Cache\Config\CacheConfigInterface;
+
 /**
  * Interface ConfigInterface
  * @package houseorm\config
@@ -85,5 +87,16 @@ interface ConfigInterface
      * @return void
      */
     public function setCharset($charset);
+
+    /**
+     * @return CacheConfigInterface
+     */
+    public function getCacheConfig();
+
+    /**
+     * @param CacheConfigInterface $cacheConfig
+     * @return void
+     */
+    public function setCacheConfig(CacheConfigInterface $cacheConfig);
 
 }

@@ -9,6 +9,7 @@
 namespace tests\entities\User;
 
 
+use houseorm\Cache\CacheableEntityInterface;
 use houseorm\mapper\annotations\Gateway;
 use houseorm\mapper\annotations\Field;
 use houseorm\mapper\annotations\Relation;
@@ -21,7 +22,7 @@ use houseorm\mapper\annotations\ViaRelation;
  * @ViaRelation(entity="Role", via="RoleUser", firstLocalKey="id", firstForeignKey="userId", secondLocalKey="id", secondForeignKey="roleId")
  * @ViaRelation(entity="Permission", via="PermissionUser", firstLocalKey="id", firstForeignKey="userId", secondLocalKey="id", secondForeignKey="permissionId")
  */
-class User implements UserInterface
+class User implements UserInterface, CacheableEntityInterface
 {
 
     /**

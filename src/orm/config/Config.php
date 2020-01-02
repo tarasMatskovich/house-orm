@@ -8,6 +8,8 @@
 
 namespace houseorm\config;
 
+use houseorm\Cache\Config\CacheConfigInterface;
+
 /**
  * Class Config
  * @package houseorm\config
@@ -55,6 +57,11 @@ class Config implements ConfigInterface
     private $charset;
 
     /**
+     * @var CacheConfigInterface|null
+     */
+    private $cache;
+
+    /**
      * Config constructor.
      * @param array $attributes
      * @throws ConfigException
@@ -90,6 +97,9 @@ class Config implements ConfigInterface
         }
         if (isset($attributes['charset'])) {
             $this->charset = $attributes['charset'];
+        }
+        if (isset($attributes['cache']) && $attributes['cache'] instanceof CacheConfigInterface) {
+            $this->cache = $attributes['cache'];
         }
     }
 
@@ -206,5 +216,21 @@ class Config implements ConfigInterface
     public function setCharset($charset)
     {
         $this->charset = $charset;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCacheConfig()
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @param CacheConfigInterface $cacheConfig
+     */
+    public function setCacheConfig(CacheConfigInterface $cacheConfig)
+    {
+        $this->cache = $cacheConfig;
     }
 }

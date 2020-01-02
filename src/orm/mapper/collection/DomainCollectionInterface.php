@@ -45,4 +45,9 @@ interface DomainCollectionInterface extends \IteratorAggregate, \ArrayAccess, \C
      */
     public function toArray();
 
+    /**
+     * @return mixed|null
+     */
+    public function first();
+
 }

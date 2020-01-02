@@ -8,6 +8,8 @@
 
 namespace tests\orm\mapper;
 
+use houseorm\Cache\Cache;
+use houseorm\Cache\Config\CacheConfig;
 use houseorm\config\Config;
 use houseorm\config\ConfigInterface;
 use houseorm\EntityManager;
@@ -133,7 +135,7 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
         $commentRepository->save($user1Comment1);
         $commentRepository->save($user1Comment2);
         $commentRepository->save($user2Comment1);
-        $userRepository->saveRelative($user1Comment2, 'User');
+        $userRepository->saveRelative($user1Comment2, 'Comment');
         $user1Comments = $userRepository->findRelative($user1, 'Comment');
         $this->assertCount(2, $user1Comments);
         $user1Comments = $userRepository->findRelativeBy($user1, 'Comment', ['content' => 'Taras comment 1']);
@@ -161,6 +163,59 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $user1Roles);
         $user2Role = $userRepository->findRelativeOneBy($user2, 'Role', ['title' => 'Editor']);
         $this->assertNull($user2Role);
+    }
+
+    /**
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\config\ConfigException
+     * @throws \houseorm\mapper\DomainMapperException
+     */
+    public function testCachedDomainMapper()
+    {
+        $config = new Config($this->memoryConfig);
+        $config->setCacheConfig(new CacheConfig(CacheConfig::MEMORY_DRIVER));
+        $entityManager = new EntityManager($config);
+        $userRepository = new UserRepository(User::class);
+        $entityManager->setMapper('User', $userRepository);
+        /**
+         * @var UserRepositoryInterface $userRepository
+         */
+        $userRepository = $entityManager->getMapper('User');
+        $user = new User('Taras');
+        $userRepository->save($user);
+        $foundedUser = $userRepository->find($user->getId());
+        $cachedUser = $userRepository->find($user->getId());
+        $this->assertEquals($foundedUser->getName(), $cachedUser->getName());
+        $foundedUser->setName('Bohdan');
+        $this->assertNotEquals($foundedUser->getName(), $cachedUser->getName());
+        $userRepository->save($foundedUser);
+        $newUser = $userRepository->find($foundedUser->getId());
+        $this->assertEquals($newUser->getName(), $foundedUser->getName());
+    }
+
+    /**
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\config\ConfigException
+     * @throws \houseorm\mapper\DomainMapperException
+     */
+    public function testExternalCachedDomainMapper()
+    {
+        $config = new Config($this->memoryConfig);
+        $config->setCacheConfig(new CacheConfig(CacheConfig::REDIS_DRIVER));
+        $entityManager = new EntityManager($config);
+        $entityManager->setMapper('User', new UserRepository(User::class));
+        $userRepository = $entityManager->getMapper('User');
+        $user = new User('Bohdan');
+        /**
+         * @var UserRepositoryInterface $userRepository
+         */
+        $userRepository->save($user);
+        $cachedUser = $userRepository->find(1);
+        $this->assertEquals($cachedUser->getName(), $user->getName());
+        $user->setName('Taras');
+        $userRepository->save($user);
+        $cachedUser = $userRepository->find($user->getId());
+        $this->assertEquals($cachedUser->getName(), $user->getName());
     }
 
 }
