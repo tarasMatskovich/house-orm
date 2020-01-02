@@ -364,7 +364,7 @@ You can use cache to increase performance of ORM work. House ORM support two dri
 - Redis cache
 Usage memory cache:
 ```php
-houseorm\Cache\Config\CacheConfig;
+use houseorm\Cache\Config\CacheConfig;
 use houseorm\config\Config;
 use houseorm\EntityManager;
 
@@ -374,7 +374,7 @@ $entityManager = new EntityManager($config);
 ```
 Usage Redis cache:
 ```php
-houseorm\Cache\Config\CacheConfig;
+use houseorm\Cache\Config\CacheConfig;
 use houseorm\config\Config;
 use houseorm\EntityManager;
 
