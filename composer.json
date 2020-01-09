@@ -5,6 +5,16 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "license": "proprietary",
+  "keywords": [
+    "php",
+    "orm",
+    "mapping",
+    "data",
+    "database",
+    "sql",
+    "mysql",
+    "mapper"
+  ],
   "authors": [
     {
       "name": "matskovich.taras<Мацькович Тарас>",
