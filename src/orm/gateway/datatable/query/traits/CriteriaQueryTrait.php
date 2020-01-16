@@ -21,11 +21,14 @@ trait CriteriaQueryTrait
     protected $criteria;
 
     /**
-     * @return string
+     * @return string|null
      */
     protected function getCriteria()
     {
         $criteria = $this->criteria;
+        if (!$criteria) {
+            return null;
+        }
         $criteriaStatement = '';
         foreach ($criteria as $key => $value) {
             $operator = '=';
@@ -46,11 +49,14 @@ trait CriteriaQueryTrait
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     protected function getPreparedCriteria()
     {
         $criteria = $this->criteria;
+        if (!$criteria) {
+            return null;
+        }
         $criteriaStatement = '';
         foreach ($criteria as $key => $value) {
             $operator = '=';

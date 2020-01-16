@@ -205,4 +205,102 @@ class TestQueryBuilder extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedPreparedQueryStatement, $actualPreparedQueryStatement);
     }
 
+    /**
+     * @return SelectQueryInterface
+     */
+    private function makeJoinQuery()
+    {
+        $queryBuilder = new QueryBuilder();
+        $query = $queryBuilder->getSelectQuery();
+        $query->select([
+            'u.id',
+            'u.name'
+        ]);
+        $query->from([
+            'users AS u'
+        ]);
+        $query->join([
+            'comments AS c' => 'c.user_id = u.id',
+            'posts AS p' => 'p.user_id = u.id',
+        ], 'LEFT');
+        $query->where([
+            'u.id' => 10
+        ]);
+        return $query;
+    }
+
+    /**
+     * @method testJoinQuery
+     * @return void
+     */
+    public function testJoinQuery()
+    {
+        $query = $this->makeJoinQuery();
+        $expectedQueryStatement = "SELECT u.id,u.name FROM users AS u LEFT JOIN comments AS c ON c.user_id = u.id LEFT JOIN posts AS p ON p.user_id = u.id WHERE u.id = 10";
+        $actualQueryStatement = $query->getStatement();
+        $this->assertEquals($expectedQueryStatement, $actualQueryStatement);
+    }
+
+    /**
+     * @method testPreparedJoinQuery
+     * @return void
+     */
+    public function testPreparedJoinQuery()
+    {
+        $query = $this->makeJoinQuery();
+        $criteriaBinding = BindingsEnum::CRITERIA_BINDING;
+        $expectedPreparedQueryStatements = "SELECT u.id,u.name FROM users AS u LEFT JOIN comments AS c ON c.user_id = u.id LEFT JOIN posts AS p ON p.user_id = u.id WHERE u.id = {$criteriaBinding}u.id";
+        $actualPreparedQueryStatement = $query->getPreparedStatement();
+        $this->assertEquals($expectedPreparedQueryStatements, $actualPreparedQueryStatement);
+    }
+
+    /**
+     * @return SelectQueryInterface
+     */
+    private function makeUnionQuery()
+    {
+        $queryBuilder = new QueryBuilder();
+        $query = $queryBuilder->getSelectQuery();
+        $query->select([
+            'u.id',
+            'u.name'
+        ]);
+        $query->from([
+            'users AS u'
+        ]);
+        $query->where([
+            ['u.id', '>', 10]
+        ]);
+        $otherQuery = $queryBuilder->getSelectQuery();
+        $otherQuery->select([
+            'c.id',
+            'c.name'
+        ]);
+        $otherQuery->from([
+            'customers AS c'
+        ]);
+        $query->union($otherQuery);
+        return $query;
+    }
+
+    /**
+     * method testUnionQuery
+     */
+    public function testUnionQuery()
+    {
+        $query = $this->makeUnionQuery();
+        $expectedQueryStatement = "SELECT u.id,u.name FROM users AS u WHERE u.id > 10 UNION SELECT c.id,c.name FROM customers AS c";
+        $actualQueryStatement = $query->getStatement();
+        $this->assertEquals($expectedQueryStatement, $actualQueryStatement);
+    }
+
+    public function testPreparedUnionQuery()
+    {
+        $query = $this->makeUnionQuery();
+        $criteriaBinding = BindingsEnum::CRITERIA_BINDING;
+        $expectedPreparedQueryStatement = "SELECT u.id,u.name FROM users AS u WHERE u.id > {$criteriaBinding}u.id UNION SELECT c.id,c.name FROM customers AS c";
+        $actualPreparedQueryStatement = $query->getPreparedStatement();
+        $this->assertEquals($expectedPreparedQueryStatement, $actualPreparedQueryStatement);
+    }
+
 }
