@@ -29,17 +29,32 @@ class SelectQuery implements SelectQueryInterface
     private $select;
 
     /**
+     * @var array
+     */
+    private $join;
+
+    /**
+     * @var SelectQueryInterface[]
+     */
+    private $unions;
+
+    /**
      * @return string
      */
     public function getStatement()
     {
         $select = $this->getSelectFields();
         $from = $this->getFrom();
+        $join = $this->getJoin();
         $criteria = $this->getCriteria();
         $order = $this->getOrder();
         $limit = $this->getLimit();
         $offset = $this->getOffset();
+        $unions = $this->getUnions();
         $statement = "SELECT {$select} FROM {$from} ";
+        if ($join) {
+            $statement .= $join . " ";
+        }
         if ($criteria) {
             $statement .= "WHERE {$criteria} ";
         }
@@ -50,9 +65,12 @@ class SelectQuery implements SelectQueryInterface
             $statement .= "LIMIT {$limit} ";
         }
         if ($offset) {
-            $statement .= "OFFSET {$offset}";
+            $statement .= "OFFSET {$offset} ";
         }
-        return $statement;
+        if ($unions) {
+            $statement .= $unions;
+        }
+        return rtrim($statement);;
     }
 
     /**
@@ -62,11 +80,16 @@ class SelectQuery implements SelectQueryInterface
     {
         $select = $this->getSelectFields();
         $from = $this->getFrom();
+        $join = $this->getJoin();
         $criteria = $this->getPreparedCriteria();
         $order = $this->getPreparedOrder();
         $limit = $this->getPreparedLimit();
         $offset = $this->getPreparedOffset();
+        $unions = $this->getPreparedUnions();
         $statement = "SELECT {$select} FROM {$from} ";
+        if ($join) {
+            $statement .= $join . " ";
+        }
         if ($criteria) {
             $statement .= "WHERE {$criteria} ";
         }
@@ -77,9 +100,12 @@ class SelectQuery implements SelectQueryInterface
             $statement .= "LIMIT {$limit} ";
         }
         if ($offset) {
-            $statement .= "OFFSET {$offset}";
+            $statement .= "OFFSET {$offset} ";
         }
-        return $statement;
+        if ($unions) {
+            $statement .= $unions;
+        }
+        return rtrim($statement);
     }
 
     /**
@@ -168,5 +194,86 @@ class SelectQuery implements SelectQueryInterface
     public function getWherePart()
     {
         return $this->criteria;
+    }
+
+    /**
+     * @param array $join
+     * @param string $type
+     * @return SelectQueryInterface
+     */
+    public function join(array $join, string $type = '')
+    {
+        $this->join[] = [
+            'type' => $type,
+            'join' => $join
+        ];
+        $query = clone $this;
+        return $query;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getJoin()
+    {
+        if (!$this->join) {
+            return null;
+        }
+        $result = '';
+        foreach ($this->join as $joinArgs) {
+            $joinStatement = '';
+            $join = $joinArgs['join'];
+            $joinType = $joinArgs['type'];
+            foreach ($join as $joinTable => $joinOn) {
+                $joinStatement .= $joinType . ' JOIN '. $joinTable . ' ON ' . $joinOn . ' ';
+            }
+            $result .= $joinStatement;
+        }
+        return rtrim($result);
+    }
+
+    /**
+     * @param SelectQueryInterface $query
+     * @return SelectQueryInterface
+     */
+    public function union(SelectQueryInterface $query)
+    {
+        $this->unions[] = $query;
+        $query = clone $this;
+        return $query;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getUnions()
+    {
+        $unions = $this->unions;
+        if (!$unions) {
+            return null;
+        }
+        $unionStatement = '';
+        foreach ($unions as $union) {
+            $unionQueryStatement = $union->getStatement();
+            $unionStatement .= 'UNION ' . $unionQueryStatement . ' ';
+        }
+        return $unionStatement;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getPreparedUnions()
+    {
+        $unions = $this->unions;
+        if (!$unions) {
+            return null;
+        }
+        $unionStatement = '';
+        foreach ($unions as $union) {
+            $unionQueryStatement = $union->getPreparedStatement();
+            $unionStatement .= 'UNION ' . $unionQueryStatement . ' ';
+        }
+        return $unionStatement;
     }
 }

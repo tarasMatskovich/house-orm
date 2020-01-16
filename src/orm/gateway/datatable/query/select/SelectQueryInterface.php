@@ -63,4 +63,17 @@ interface SelectQueryInterface extends QueryInterface
      */
     public function getWherePart();
 
+    /**
+     * @param array $join
+     * @param string $type
+     * @return SelectQueryInterface
+     */
+    public function join(array $join, string $type = '');
+
+    /**
+     * @param SelectQueryInterface $query
+     * @return SelectQueryInterface
+     */
+    public function union(SelectQueryInterface $query);
+
 }
