@@ -24,6 +24,6 @@ class CreateEntityListener implements ListenerInterface
      */
     public function __invoke($payload)
     {
-        echo 'Entity was created' . "\r\n";
+//        echo 'Entity was created' . "\r\n";
     }
 }
