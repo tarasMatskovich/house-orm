@@ -24,6 +24,6 @@ class DeleteEntityListener implements ListenerInterface
      */
     public function __invoke($payload)
     {
-        echo 'Entity was deleted' . "\r\n";
+//        echo 'Entity was deleted' . "\r\n";
     }
 }

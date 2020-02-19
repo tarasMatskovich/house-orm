@@ -24,6 +24,6 @@ class FindEntityListener implements ListenerInterface
      */
     public function __invoke($payload)
     {
-        echo 'Entity was found' . "\r\n";
+//        echo 'Entity was found' . "\r\n";
     }
 }
