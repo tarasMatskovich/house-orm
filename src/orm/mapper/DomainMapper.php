@@ -13,7 +13,6 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
 use houseorm\Cache\Request\Find\FindCacheRequest;
 use houseorm\Cache\Request\Set\SetCacheRequest;
-use houseorm\Cache\Request\Set\SetCacheRequestInterface;
 use houseorm\EntityManagerInterface;
 use houseorm\EventManager\EventManager;
 use houseorm\EventManager\EventManagerInterface;
@@ -23,7 +22,6 @@ use houseorm\EventManager\Events\Find\EntityFound;
 use houseorm\EventManager\Events\Update\EntityUpdated;
 use houseorm\gateway\builder\QueryBuilder;
 use houseorm\gateway\builder\QueryBuilderInterface;
-use houseorm\gateway\connection\factory\ConnectionFactory;
 use houseorm\gateway\connection\factory\ConnectionFactoryInterface;
 use houseorm\gateway\connection\InMemoryConnection;
 use houseorm\gateway\datatable\DataTableGateway;
@@ -253,14 +251,16 @@ class DomainMapper implements DomainMapperInterface
                     if ($map) {
                         $mapping[$privateProperty->getName()] = $map;
                         $relationAnnotation = $this->reader->getPropertyAnnotation($privateProperty, Relation::class);
-                        $entity = $relationAnnotation->entity;
-                        $key = $relationAnnotation->key;
-                        if ($entity && $key) {
-                            $this->relations[$entity] = [
-                                'type' => 'simple',
-                                'key' => $key,
-                                'localKey' => $privateProperty->getName()
-                            ];
+                        if ($relationAnnotation) {
+                            $entity = $relationAnnotation->entity;
+                            $key = $relationAnnotation->key;
+                            if ($entity && $key) {
+                                $this->relations[$entity] = [
+                                    'type' => 'simple',
+                                    'key' => $key,
+                                    'localKey' => $privateProperty->getName()
+                                ];
+                            }
                         }
                     }
                 }
@@ -347,7 +347,7 @@ class DomainMapper implements DomainMapperInterface
                     try {
                         return $this->doMap(json_decode($result, true));
                     } catch (DomainMapperException $e) {
-
+                        return null;
                     }
                 }
             }
@@ -402,6 +402,7 @@ class DomainMapper implements DomainMapperInterface
                     $entity = $this->doMap($res);
                     $collection->add($entity);
                 } catch (DomainMapperException $e) {
+                    return new DomainCollection();
                 }
             }
             return $collection;

@@ -28,7 +28,7 @@ class Logger implements LoggerInterface
      */
     public function emergency($message, array $context = array())
     {
-        echo 'Emergency: ' . $message . "\r\n";
+        //echo 'Emergency: ' . $message . "\r\n";
     }
 
     /**
@@ -44,7 +44,7 @@ class Logger implements LoggerInterface
      */
     public function alert($message, array $context = array())
     {
-        echo 'Alert: ' . $message . "\r\n";
+        //echo 'Alert: ' . $message . "\r\n";
     }
 
     /**
@@ -59,7 +59,7 @@ class Logger implements LoggerInterface
      */
     public function critical($message, array $context = array())
     {
-        echo 'Critical: ' . $message . "\r\n";
+        //echo 'Critical: ' . $message . "\r\n";
     }
 
     /**
@@ -73,7 +73,7 @@ class Logger implements LoggerInterface
      */
     public function error($message, array $context = array())
     {
-        echo 'Error: ' . $message . "\r\n";
+        //echo 'Error: ' . $message . "\r\n";
     }
 
     /**
@@ -89,7 +89,7 @@ class Logger implements LoggerInterface
      */
     public function warning($message, array $context = array())
     {
-        echo 'Warning: ' . $message . "\r\n";
+        //echo 'Warning: ' . $message . "\r\n";
     }
 
     /**
@@ -102,7 +102,7 @@ class Logger implements LoggerInterface
      */
     public function notice($message, array $context = array())
     {
-        echo 'Notice: ' . $message . "\r\n";
+        //echo 'Notice: ' . $message . "\r\n";
     }
 
     /**
@@ -117,7 +117,7 @@ class Logger implements LoggerInterface
      */
     public function info($message, array $context = array())
     {
-        echo 'Info: ' . $message . "\r\n";
+        //echo 'Info: ' . $message . "\r\n";
     }
 
     /**
@@ -130,7 +130,7 @@ class Logger implements LoggerInterface
      */
     public function debug($message, array $context = array())
     {
-        echo 'Debug: ' . $message . "\r\n";
+        //echo 'Debug: ' . $message . "\r\n";
     }
 
     /**
