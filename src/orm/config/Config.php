@@ -19,10 +19,13 @@ class Config implements ConfigInterface
 
     const DRIVER_MYSQL = 'mysql';
 
+    const DRIVER_PG_SQL = 'pgsql';
+
     const DRIVER_MEMORY = 'memory';
 
     const AVAILABLE_DRIVERS = [
         self::DRIVER_MYSQL,
+        self::DRIVER_PG_SQL,
         self::DRIVER_MEMORY
     ];
 

@@ -14,6 +14,11 @@ use houseorm\gateway\connection\ConnectionInterface;
 use houseorm\gateway\connection\InMemoryConnection;
 use houseorm\gateway\connection\PdoConnection;
 
+
+/**
+ * Class ConnectionFactory
+ * @package houseorm\gateway\connection\factory
+ */
 class ConnectionFactory implements ConnectionFactoryInterface
 {
 
@@ -46,6 +51,8 @@ class ConnectionFactory implements ConnectionFactoryInterface
             case Config::DRIVER_MEMORY:
                 return $this->memoryConnection;
             case Config::DRIVER_MYSQL:
+                return $this->pdoConnection;
+            case Config::DRIVER_PG_SQL:
                 return $this->pdoConnection;
             default:
                 return $this->memoryConnection;

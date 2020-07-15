@@ -1,6 +1,6 @@
 {
   "name": "tarasmatskovich/house-orm",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "PHP ORM library",
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -25,7 +25,7 @@
     "phpunit/phpunit": "5.4.6"
   },
   "require": {
-    "php": "^7.0",
+    "php": "^7.1",
     "ext-json": "*",
     "ext-pdo": "*",
     "tarasmatskovich/annotations": "^1.9",
