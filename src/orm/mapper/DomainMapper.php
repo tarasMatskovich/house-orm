@@ -93,6 +93,11 @@ class DomainMapper implements DomainMapperInterface
     private $target;
 
     /**
+     * @var string
+     */
+    private $scheme;
+
+    /**
      * @var EntityManagerInterface
      */
     private $entityManager;
@@ -152,8 +157,18 @@ class DomainMapper implements DomainMapperInterface
         } catch (\ReflectionException $e) {
             throw new DomainMapperException($this->entity);
         }
-        $target = $gatewayParts[1] ?? null;
+        $target = null;
+        $scheme = null;
+        if (count($gatewayParts) === 2) {
+            $target = $gatewayParts[1] ?? null;
+        } elseif(count($gatewayParts) === 3) {
+            $scheme = $gatewayParts[1] ?? null;
+            $target = $gatewayParts[2] ?? null;
+        } else {
+            throw new DomainMapperException($this->entity);
+        }
         $this->target = $target;
+        $this->scheme = $scheme;
     }
 
     /**
@@ -177,7 +192,7 @@ class DomainMapper implements DomainMapperInterface
     {
         try {
             $gatewayParts = $this->getGatewayParts();
-            if (!$gatewayParts && count($gatewayParts) !== 2) {
+            if (!$gatewayParts) {
                 throw new DomainMapperException($this->entity);
             }
             $gateway = $gatewayParts[0] ?? null;
@@ -354,7 +369,7 @@ class DomainMapper implements DomainMapperInterface
         }
         $query = $this->builder->getSelectQuery();
         $query->select(['*']);
-        $query->from([$this->target]);
+        $query->from([$this->makeTarget()]);
         $query->where([$pk => $id]);
         $query->limit(1);
         $queryRequest = new QueryRequest($query, $pk);
@@ -371,6 +386,14 @@ class DomainMapper implements DomainMapperInterface
             }
         }
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    private function makeTarget()
+    {
+        return $this->scheme ? $this->scheme . '.' . $this->target : $this->target;
     }
 
     /**
@@ -391,7 +414,7 @@ class DomainMapper implements DomainMapperInterface
         $pk = $this->primaryKey;
         $query = $this->builder->getSelectQuery();
         $query->select(['*']);
-        $query->from([$this->target]);
+        $query->from([$this->makeTarget()]);
         $query->where($this->getCriteriaByMapping($criteria));
         $queryRequest = new QueryRequest($query, $pk);
         $result = $this->gateway->execute($queryRequest);
@@ -419,7 +442,7 @@ class DomainMapper implements DomainMapperInterface
         $pk = $this->primaryKey;
         $query = $this->builder->getSelectQuery();
         $query->select(['*']);
-        $query->from([$this->target]);
+        $query->from([$this->makeTarget()]);
         $query->where($this->getCriteriaByMapping($criteria));
         $query->limit(1);
         $queryRequest = new QueryRequest($query, $pk);
@@ -720,7 +743,7 @@ class DomainMapper implements DomainMapperInterface
     private function doSave(array $attributes)
     {
         $query = $this->builder->getInsertQuery();
-        $query->into([$this->target]);
+        $query->into([$this->makeTarget()]);
         $attributes = $this->removePrimaryKeyFromFields($attributes);
         $query->fields($attributes);
         $queryRequest = new QueryRequest($query, $this->primaryKey);
@@ -735,7 +758,7 @@ class DomainMapper implements DomainMapperInterface
     private function doUpdate(array $attributes)
     {
         $query = $this->builder->getUpdateQuery();
-        $query->update([$this->target]);
+        $query->update([$this->makeTarget()]);
         $pk = $this->retrieveMappedPrimaryKeyFromAttributes($attributes);
         $attributes = $this->removePrimaryKeyFromFields($attributes);
         $query->set($attributes);
@@ -819,7 +842,7 @@ class DomainMapper implements DomainMapperInterface
         }
         $pk = $this->retrieveMappedPrimaryKeyFromAttributes($fields);
         if (isset($this->mapping[$this->primaryKey]) && null !== $pk && $this->target) {
-            $query->from([$this->target]);
+            $query->from([$this->makeTarget()]);
             $query->where([
                 $this->mapping[$this->primaryKey] => $pk
             ]);

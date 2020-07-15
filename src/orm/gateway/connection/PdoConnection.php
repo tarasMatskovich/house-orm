@@ -8,16 +8,15 @@
 
 namespace houseorm\gateway\connection;
 
+use houseorm\config\Config;
 use houseorm\config\ConfigInterface;
 use houseorm\gateway\datatable\query\delete\DeleteQuery;
 use houseorm\gateway\datatable\query\delete\DeleteQueryInterface;
 use houseorm\gateway\datatable\query\insert\InsertQuery;
 use houseorm\gateway\datatable\query\insert\InsertQueryInterface;
-use houseorm\gateway\datatable\query\QueryInterface;
 use houseorm\gateway\datatable\query\select\SelectQuery;
 use houseorm\gateway\datatable\query\select\SelectQueryInterface;
 use houseorm\gateway\datatable\query\traits\BindingsEnum;
-use houseorm\gateway\datatable\query\traits\CriteriaQueryTrait;
 use houseorm\gateway\datatable\query\update\UpdateQuery;
 use houseorm\gateway\datatable\query\update\UpdateQueryInterface;
 use houseorm\gateway\datatable\request\QueryRequestInterface;
@@ -53,15 +52,19 @@ class PdoConnection implements ConnectionInterface
      */
     private function establishConnection()
     {
-        $host = $this->config->getHost();
-        $db   = $this->config->getDatabase();
-        $user = $this->config->getUser();
-        $pass = $this->config->getPassword();
+        $driver = $this->config->getDriver();
+        $host   = $this->config->getHost();
+        $db     = $this->config->getDatabase();
+        $user   = $this->config->getUser();
+        $pass   = $this->config->getPassword();
         $charset = $this->config->getCharset();
         if (!$charset) {
             $charset = 'utf8';
         }
-        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+        $dsn = "$driver:host=$host;dbname=$db";
+        if ($driver === Config::DRIVER_MYSQL) {
+            $dsn .= ";charset=$charset";
+        }
         $opt = [
             \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,

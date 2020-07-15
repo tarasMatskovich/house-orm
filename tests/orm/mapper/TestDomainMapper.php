@@ -48,6 +48,17 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
     /**
      * @var array
      */
+    private $postgresDatabaseConfig = [
+        'driver' => Config::DRIVER_PG_SQL,
+        'host'=> '127.0.0.1',
+        'database' => 'orm',
+        'user' => 'postgres',
+        'password' => ''
+    ];
+
+    /**
+     * @var array
+     */
     private $memoryConfig = [
         'driver' => Config::DRIVER_MEMORY
     ];
@@ -72,6 +83,18 @@ class TestDomainMapper extends \PHPUnit_Framework_TestCase
     public function testDatabaseMapper()
     {
         $config = new Config($this->databaseConfig);
+        $entityManager = $this->makeEntityManager($config);
+        $this->testMapper($entityManager);
+    }
+
+    /**
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \houseorm\config\ConfigException
+     * @throws \houseorm\mapper\DomainMapperException
+     */
+    public function testPGDatabaseMapper()
+    {
+        $config = new Config($this->postgresDatabaseConfig);
         $entityManager = $this->makeEntityManager($config);
         $this->testMapper($entityManager);
     }
