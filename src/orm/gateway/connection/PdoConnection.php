@@ -171,7 +171,7 @@ class PdoConnection implements ConnectionInterface
         $stmt = $this->conn->prepare($query->getPreparedStatement());
         $stmt = $this->bindSet($stmt, $query);
         $stmt = $this->bindWhere($stmt, $query);
-        $res = $stmt->execute();
+        $res = $stmt->execute(array_merge($query->getSetPart(), $query->getWherePart()));
         return [
             'result' => $res,
             'rows' => (int)$res
