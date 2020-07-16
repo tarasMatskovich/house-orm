@@ -337,7 +337,7 @@ class DomainMapper implements DomainMapperInterface
             $privateProperty->setAccessible(true);
             $value = $privateProperty->getValue($entity);
             $privateProperty->setAccessible(false);
-            if (isset($this->mapping[$name])) {
+            if (isset($this->mapping[$name]) && null !== $value) {
                 $fields[$this->mapping[$name]] = $value;
             }
         }
@@ -435,7 +435,7 @@ class DomainMapper implements DomainMapperInterface
 
     /**
      * @param array $criteria
-     * @return DomainObjectInterface|null
+     * @return DomainObjectInterface|mixed|null
      */
     public function findOneBy($criteria)
     {
@@ -516,7 +516,7 @@ class DomainMapper implements DomainMapperInterface
     /**
      * @param $entity
      * @param $relativeEntityName
-     * @return DomainObjectInterface|null
+     * @return DomainObjectInterface|mixed|null
      */
     public function findRelativeOne($entity, $relativeEntityName)
     {
@@ -624,7 +624,7 @@ class DomainMapper implements DomainMapperInterface
      * @param $entity
      * @param $relativeEntityName
      * @param $criteria
-     * @return DomainObjectInterface|null
+     * @return DomainObjectInterface|mixed|null
      */
     public function findRelativeOneBy($entity, $relativeEntityName, $criteria)
     {
