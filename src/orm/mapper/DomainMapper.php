@@ -298,12 +298,14 @@ class DomainMapper implements DomainMapperInterface
                 $entityReflectionClass = new \ReflectionClass($this->entity);
                 $entityObject = $entityReflectionClass->newInstanceWithoutConstructor();
                 $entityProperties = $entityReflectionClass->getProperties(\ReflectionProperty::IS_PRIVATE);
+                $attributes = [];
                 foreach ($entityProperties as $entityProperty) {
                     $propertyName = $entityProperty->getName();
                     if (array_key_exists($propertyName, $this->mapping) && array_key_exists($this->mapping[$propertyName], $result)) {
                         $entityProperty->setAccessible(true);
                         $entityProperty->setValue($entityObject, $result[$this->mapping[$propertyName]]);
                         $entityProperty->setAccessible(false);
+                        $attributes[$propertyName] = $result[$this->mapping[$propertyName]];
                     }
                 }
                 $eventManager = $this->entityManager->getEventManager();
@@ -314,6 +316,7 @@ class DomainMapper implements DomainMapperInterface
                 if ($mapperEventManager) {
                     $mapperEventManager->dispatch(EntityFound::EVENT_TYPE, new EntityFound($entityObject));
                 }
+                $this->setCleanAttributes($entityObject, $attributes);
                 return $entityObject;
             } catch (\ReflectionException $e) {
                 throw new DomainMapperException($this->entity);
@@ -687,6 +690,7 @@ class DomainMapper implements DomainMapperInterface
         $eventType = null;
         try {
             if ($this->isEntityExists($entity)) {
+                $fields = $this->makeOnlyDirtyAttributes($entity, $fields);
                 $lastInsertId = $this->doUpdate($fields);
                 $eventType = EntityUpdated::EVENT_TYPE;
                 $payload = new \StdClass();
@@ -762,14 +766,32 @@ class DomainMapper implements DomainMapperInterface
         $pk = $this->retrieveMappedPrimaryKeyFromAttributes($attributes);
         $attributes = $this->removePrimaryKeyFromFields($attributes);
         $query->set($attributes);
-        if ($pk) {
+        if ($attributes) {
             $query->where([
                 $this->primaryKey => $pk
             ]);
             $this->gateway->execute(new QueryRequest($query, $this->primaryKey));
-            return $pk;
         }
-        return null;
+        return $pk;
+    }
+
+    /**
+     * @param $entity
+     * @param array $attributes
+     * @return array
+     */
+    private function makeOnlyDirtyAttributes($entity, array $attributes)
+    {
+        if (!isset($entity->__cleanAttributes) || !$entity->__cleanAttributes || !is_array($entity->__cleanAttributes)) {
+            return $attributes;
+        }
+        $dirtyAttributes = [];
+        foreach ($attributes as $key => $value) {
+            if (isset($entity->__cleanAttributes[$key]) && ($entity->__cleanAttributes[$key] !== $value || $key === $this->primaryKey)) {
+                $dirtyAttributes[$key] = $value;
+            }
+        }
+        return $dirtyAttributes;
     }
 
     /**
@@ -906,5 +928,14 @@ class DomainMapper implements DomainMapperInterface
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    /**
+     * @param $entity
+     * @param array $attributes
+     */
+    private function setCleanAttributes(&$entity, array $attributes = [])
+    {
+        $entity->__cleanAttributes = $attributes;
     }
 }
